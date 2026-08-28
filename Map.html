@@ -8,1417 +8,2053 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body {
-            height: 100%; width: 100%; overflow: hidden;
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
             background: #1c1a14;
             font-family: "Playfair Display", "SimSun", "宋体", serif;
             color: #e8d9bc;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             padding: 4px;
-            -webkit-tap-highlight-color: transparent;
         }
+
         .app-wrap {
-            width: 100%; max-width: 960px;
-            display: flex; flex-direction: column; align-items: center;
-            flex: 1; min-height: 0;
+            width: 100%;
+            max-width: 960px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-height: 0;
         }
+
+        /* ===== 羊皮纸地图容器 ===== */
         .parchment-wrap {
-            width: 100%; position: relative;
+            width: 100%;
+            position: relative;
             background: #e8d9bc;
             background-image: url("https://p3-flow-image-sign.byteimg.com/ocean-cloud-tos/94e46f34802c491899c949f58bd76ccb.png~tplv-7j2s96k78h-image.image");
-            background-size: cover; background-position: center;
+            background-size: cover;
+            background-position: center;
             border-radius: 6px;
-            box-shadow: 0 0 35px #000, inset 0 0 45px rgba(184,167,136,0.65);
+            box-shadow: 0 0 35px #000, inset 0 0 45px rgba(184, 167, 136, 0.65);
             border: 6px solid #d4c2a0;
             border-image: linear-gradient(135deg, #b9a886, #e2d2b4, #a89674, #d4c2a0) 1;
             overflow: hidden;
-            flex: 1; min-height: 0;
+            flex: 1;
+            min-height: 0;
         }
+
         .map-content {
-            position: relative; width: 900px; height: 620px;
+            position: relative;
+            width: 900px;
+            height: 620px;
             transform-origin: top left;
-            opacity: 0; transition: opacity 1.2s ease;
+            opacity: 0;
+            transition: opacity 1.2s ease;
         }
-        .map-content.active { opacity: 1; }
+        .map-content.active {
+            opacity: 1;
+        }
+
         .map-title-wrap {
-            position: absolute; top: 10px; left: 50%;
+            position: absolute;
+            top: 10px;
+            left: 50%;
             transform: translateX(-50%);
-            text-align: center; pointer-events: none; white-space: nowrap; z-index: 4;
+            text-align: center;
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 4;
         }
         .map-title {
             font-family: "Great Vibes", "Playfair Display", cursive;
-            font-size: 28px; letter-spacing: 2px;
-            color: #204020; text-shadow: 1px 1px 3px rgba(0,0,0,0.25);
+            font-size: 28px;
+            letter-spacing: 2px;
+            color: #204020;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
         }
-        .map-subtitle { font-size: 10px; margin-top: 2px; color: #284828; opacity: 0; transition: opacity 1.2s ease; }
-        .map-content.active .map-subtitle { opacity: 1; }
+        .map-subtitle {
+            font-size: 10px;
+            margin-top: 2px;
+            color: #284828;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        .map-content.active .map-subtitle {
+            opacity: 1;
+        }
+
         #hogwartsSvg {
-            width: 900px; height: 620px;
-            position: absolute; left: 0; top: 0; z-index: 2;
+            width: 900px;
+            height: 620px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 2;
             pointer-events: none;
         }
+
         .svg-line {
-            stroke: #593c20; stroke-width: 1.3; fill: none;
-            stroke-dasharray: 2000; stroke-dashoffset: 2000;
+            stroke: #593c20;
+            stroke-width: 1.3;
+            fill: none;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
         }
-        .map-content.active .svg-line { animation: drawLines 1.8s forwards; }
-        @keyframes drawLines { to { stroke-dashoffset: 0; } }
+        .map-content.active .svg-line {
+            animation: drawLines 1.8s forwards;
+        }
+        @keyframes drawLines {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
         .building-label {
             position: absolute;
-            font-size: 11px; color: #2b1f10;
-            background: rgba(232,217,188,0.92);
-            padding: 1px 4px; border-radius: 2px;
-            pointer-events: none; white-space: nowrap; font-weight: bold; z-index: 3;
+            font-size: 11px;
+            color: #2b1f10;
+            background: rgba(232, 217, 188, 0.92);
+            padding: 1px 4px;
+            border-radius: 2px;
+            pointer-events: none;
+            white-space: nowrap;
+            font-weight: bold;
+            z-index: 3;
             user-select: none;
         }
+
         .person-mark {
-            position: absolute; width: 24px; height: 34px;
+            position: absolute;
+            width: 24px;
+            height: 34px;
             transform: translate(-50%, -100%);
-            cursor: pointer; z-index: 30;
+            cursor: pointer;
+            z-index: 30;
             touch-action: manipulation;
+            transition: filter 0.15s;
         }
-        .person-mark.track-target { filter: drop-shadow(0 0 6px #ff3333); }
-        .person-svg { width: 100%; height: 100%; pointer-events: none; display: block; }
+        .person-mark.track-target {
+            filter: drop-shadow(0 0 6px #ff3333);
+        }
+        .person-svg {
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: block;
+        }
         .person-label {
-            position: absolute; top: -18px; left: 50%;
+            position: absolute;
+            top: -18px;
+            left: 50%;
             transform: translateX(-50%);
-            white-space: nowrap; font-size: 11px; color: #1a1a1a;
-            background: rgba(232,217,188,0.85);
-            padding: 1px 4px; border-radius: 2px;
-            pointer-events: none; user-select: none; font-weight: 600;
+            white-space: nowrap;
+            font-size: 11px;
+            color: #1a1a1a;
+            background: rgba(232, 217, 188, 0.85);
+            padding: 1px 4px;
+            border-radius: 2px;
+            pointer-events: none;
+            user-select: none;
+            font-weight: 600;
         }
+
+        /* ===== 聊天气泡（新增） ===== */
+        .chat-bubble {
+            position: absolute;
+            z-index: 40;
+            background: rgba(255, 255, 240, 0.95);
+            color: #2b1f10;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: "Playfair Display", "SimSun", "宋体", serif;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 2px #b8a788;
+            cursor: pointer;
+            transform: translate(-50%, -120%);
+            white-space: nowrap;
+            user-select: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: bubbleFloat 2s infinite ease-in-out;
+        }
+        .chat-bubble::after {
+            content: "";
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: rgba(255, 255, 240, 0.95);
+        }
+        .chat-bubble:hover {
+            transform: translate(-50%, -130%) scale(1.05);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5), 0 0 0 3px #c9b896;
+        }
+        .chat-bubble:active {
+            transform: translate(-50%, -120%) scale(0.95);
+        }
+        @keyframes bubbleFloat {
+            0%,
+            100% {
+                transform: translate(-50%, -120%);
+            }
+            50% {
+                transform: translate(-50%, -135%);
+            }
+        }
+        .chat-bubble.hidden {
+            display: none;
+        }
+
         .track-line {
-            position: absolute; width: 900px; height: 620px;
-            left: 0; top: 0; pointer-events: none; z-index: 5;
+            position: absolute;
+            width: 900px;
+            height: 620px;
+            left: 0;
+            top: 0;
+            pointer-events: none;
+            z-index: 5;
         }
         .track-path {
-            fill: none; stroke: #ff3333; stroke-width: 2.5;
-            stroke-linecap: round; stroke-linejoin: round;
-            opacity: 0; transition: opacity 0.3s ease;
+            fill: none;
+            stroke: #ff3333;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-        .track-path.visible { opacity: 0.75; stroke-dasharray: 6 4; animation: dash 1s linear infinite; }
-        @keyframes dash { to { stroke-dashoffset: -10; } }
+        .track-path.visible {
+            opacity: 0.75;
+            stroke-dasharray: 6 4;
+            animation: dash 1s linear infinite;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -10;
+            }
+        }
+
+        /* ===== 底部按钮 ===== */
         .bottom-bar {
-            margin-top: 6px; width: 100%;
-            display: flex; justify-content: center; flex-wrap: wrap;
-            gap: 4px; padding: 2px 0; flex-shrink: 0;
+            margin-top: 6px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 2px 0;
+            flex-shrink: 0;
         }
         .spell-input-wrap {
-            display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; width: 100%;
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
         }
         .spell-input {
-            padding: 4px 8px; background: #f3e9d5; border: 1px solid #887755;
-            border-radius: 4px; width: min(180px, 45vw);
-            font-family: inherit; color: #2b1f10; font-size: 13px; min-height: 30px;
+            padding: 4px 8px;
+            background: #f3e9d5;
+            border: 1px solid #887755;
+            border-radius: 4px;
+            width: min(180px, 45vw);
+            font-family: inherit;
+            color: #2b1f10;
+            font-size: 13px;
+            min-height: 30px;
         }
         .btn {
-            padding: 4px 8px; background: #c9b896; border: 1px solid #887755;
-            border-radius: 4px; cursor: pointer; font-size: 12px;
-            font-family: inherit; color: #2b1f10;
-            touch-action: manipulation; min-height: 30px;
-            display: inline-flex; align-items: center; justify-content: center;
-            white-space: nowrap; -webkit-tap-highlight-color: transparent;
-            user-select: none;
+            padding: 4px 8px;
+            background: #c9b896;
+            border: 1px solid #887755;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: inherit;
+            color: #2b1f10;
+            touch-action: manipulation;
+            min-height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
         }
-        .btn:active { background: #b8a783; transform: scale(0.96); }
-        .btn.recording { background: #900; color: #fff; }
+        .btn:active {
+            background: #b8a783;
+            transform: scale(0.96);
+        }
+        .btn.recording {
+            background: #900;
+            color: #fff;
+        }
+
+        /* ===== 聊天弹窗 ===== */
         .chat-modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.78);
-            display: none; align-items: center; justify-content: center;
-            z-index: 200; padding: 8px;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.78);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 8px;
         }
-        .chat-modal-overlay.show { display: flex; }
+        .chat-modal-overlay.show {
+            display: flex;
+        }
         .chat-box {
-            width: min(820px, 96vw); height: min(580px, calc(100dvh - 30px));
-            background: #443a2c; border-radius: 8px; overflow: hidden;
-            display: flex; flex-direction: column;
-            box-shadow: 0 0 35px #000; position: relative;
+            width: min(820px, 96vw);
+            height: min(580px, calc(100dvh - 30px));
+            background: #443a2c;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 35px #000;
+            position: relative;
         }
         @media(min-width:720px) {
-            .chat-box { flex-direction: row; height: min(600px, calc(100dvh - 40px)); }
+            .chat-box {
+                flex-direction: row;
+                height: min(600px, calc(100dvh - 40px));
+            }
         }
         .chat-bg {
-            position: absolute; inset: 0;
-            background: #443a2c; background-size: cover; background-position: center;
+            position: absolute;
+            inset: 0;
+            background: #443a2c;
+            background-size: cover;
+            background-position: center;
             z-index: 1;
         }
         .chat-bg::after {
-            content: ""; position: absolute; inset: 0;
-            background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.65));
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.65));
             z-index: 1;
         }
         .chat-sprite-wrap {
-            position: relative; z-index: 3;
-            width: 100%; height: 140px; flex-shrink: 0;
-            display: flex; align-items: flex-end; justify-content: center;
-            background: rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            height: 140px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.15);
         }
         @media(min-width:720px) {
-            .chat-sprite-wrap { width: 250px; height: auto; min-height: 180px; }
+            .chat-sprite-wrap {
+                width: 250px;
+                height: auto;
+                min-height: 180px;
+            }
         }
         .chat-sprite {
-            height: 85%; max-width: 92%; object-fit: contain;
-            opacity: 0; transform: translateY(20px);
+            height: 85%;
+            max-width: 92%;
+            object-fit: contain;
+            opacity: 0;
+            transform: translateY(20px);
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
-        .chat-sprite.show { opacity: 1; transform: translateY(0); }
+        .chat-sprite.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
         .chat-right-wrap {
-            position: relative; z-index: 3;
-            flex: 1; display: flex; flex-direction: column;
-            background: rgba(20,16,12,0.45); min-height: 0;
+            position: relative;
+            z-index: 3;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(20, 16, 12, 0.45);
+            min-height: 0;
         }
         .chat-header {
             padding: 4px 10px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(210,190,160,0.35);
-            color: #f0e8d8; flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(210, 190, 160, 0.35);
+            color: #f0e8d8;
+            flex-shrink: 0;
         }
-        .chat-title { font-family: "Great Vibes", "Playfair Display", serif; font-size: 18px; }
-        .chat-status { font-size: 12px; color: #ccc; margin-left: 6px; }
+        .chat-title {
+            font-family: "Great Vibes", "Playfair Display", serif;
+            font-size: 18px;
+        }
+        .chat-status {
+            font-size: 12px;
+            color: #ccc;
+            margin-left: 6px;
+        }
         .chat-content {
-            flex: 1; overflow-y: auto; padding: 6px 10px;
-            color: #f8f2e4; min-height: 60px;
-            -webkit-overflow-scrolling: touch;
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 10px;
+            color: #f8f2e4;
+            min-height: 60px;
         }
-        .msg-self { text-align: right; margin: 4px 0; }
-        .msg-char { text-align: left; margin: 4px 0; }
+        .msg-self {
+            text-align: right;
+            margin: 4px 0;
+        }
+        .msg-char {
+            text-align: left;
+            margin: 4px 0;
+        }
         .msg-bubble-self {
-            display: inline-block; background: rgba(180,155,110,0.75);
-            padding: 4px 8px; border-radius: 8px; max-width: 82%;
-            line-height: 1.4; font-size: 13px; word-break: break-word;
+            display: inline-block;
+            background: rgba(180, 155, 110, 0.75);
+            padding: 4px 8px;
+            border-radius: 8px;
+            max-width: 82%;
+            line-height: 1.4;
+            font-size: 13px;
+            word-break: break-word;
         }
         .msg-bubble-char {
-            display: inline-block; background: rgba(243,233,213,0.22);
-            padding: 4px 8px; border-radius: 8px; max-width: 82%;
-            line-height: 1.4; font-size: 13px; white-space: pre-wrap; word-break: break-word;
+            display: inline-block;
+            background: rgba(243, 233, 213, 0.22);
+            padding: 4px 8px;
+            border-radius: 8px;
+            max-width: 82%;
+            line-height: 1.4;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
         .event-options {
-            display: flex; flex-direction: column; gap: 6px; margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
         }
         .event-options .btn {
-            text-align: left; width: 100%; justify-content: flex-start;
-            background: rgba(200,180,150,0.3); border-color: #b8a788;
-            color: #f0e8d8; padding: 6px 10px;
+            text-align: left;
+            width: 100%;
+            justify-content: flex-start;
+            background: rgba(200, 180, 150, 0.3);
+            border-color: #b8a788;
+            color: #f0e8d8;
+            padding: 6px 10px;
         }
-        .event-options .btn:active { background: rgba(200,180,150,0.5); }
+        .event-options .btn:active {
+            background: rgba(200, 180, 150, 0.5);
+        }
         .chat-ctrl-row {
-            display: flex; gap: 4px; padding: 4px 8px;
-            flex-wrap: wrap; align-items: center; flex-shrink: 0;
+            display: flex;
+            gap: 4px;
+            padding: 4px 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            flex-shrink: 0;
         }
         .chat-input-area {
-            display: flex; gap: 4px; padding: 4px 8px 6px;
-            border-top: 1px solid rgba(210,190,160,0.35);
+            display: flex;
+            gap: 4px;
+            padding: 4px 8px 6px;
+            border-top: 1px solid rgba(210, 190, 160, 0.35);
             flex-shrink: 0;
         }
         .chat-input {
-            flex: 1; padding: 4px 6px;
-            background: rgba(255,255,255,0.12); border: 1px solid #887755;
-            border-radius: 4px; color: #fff; font-size: 13px; min-height: 30px;
+            flex: 1;
+            padding: 4px 6px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid #887755;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 13px;
+            min-height: 30px;
         }
         .api-config-area {
-            padding: 2px 10px; border-top: 1px solid rgba(210,190,160,0.3);
-            font-size: 12px; color: #ddd; flex-shrink: 0;
-            background: rgba(0,0,0,0.2);
+            padding: 2px 10px;
+            border-top: 1px solid rgba(210, 190, 160, 0.3);
+            font-size: 12px;
+            color: #ddd;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.2);
         }
         .api-config-area input {
-            width: 100%; background: rgba(255,255,255,0.1);
-            border: 1px solid #666; border-radius: 4px;
-            padding: 2px 6px; color: #fff; margin: 2px 0; font-size: 12px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #666;
+            border-radius: 4px;
+            padding: 2px 6px;
+            color: #fff;
+            margin: 2px 0;
+            font-size: 12px;
         }
-        .api-config-area label { margin-right: 6px; cursor: pointer; }
+        .api-config-area label {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        /* ===== 设置面板 ===== */
         .setting-panel {
-            position: fixed; top: 0; right: 0;
-            width: 100vw; height: 100dvh;
-            background: #e8d9bc; background-size: cover; background-position: center;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100vw;
+            height: 100dvh;
+            background: #e8d9bc;
+            background-size: cover;
+            background-position: center;
             transform: translateX(100%);
             transition: transform 0.35s ease;
-            z-index: 300; padding: 14px; overflow-y: auto;
-            color: #2b1f10; font-family: "SimSun","宋体",serif;
-            -webkit-overflow-scrolling: touch;
+            z-index: 300;
+            padding: 14px;
+            overflow-y: auto;
+            color: #2b1f10;
+            font-family: "SimSun", "宋体", serif;
         }
-        @media(min-width:720px) { .setting-panel { width: min(480px, 92vw); } }
-        .setting-panel.open { transform: translateX(0); }
+        @media(min-width:720px) {
+            .setting-panel {
+                width: min(480px, 92vw);
+            }
+        }
+        .setting-panel.open {
+            transform: translateX(0);
+        }
         .set-close {
-            position: absolute; top: 10px; right: 14px;
-            font-size: 24px; cursor: pointer; padding: 4px 8px;
-            background: rgba(0,0,0,0.05); border-radius: 4px;
-            touch-action: manipulation;
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
         }
-        .set-close:active { background: rgba(0,0,0,0.15); }
-        .set-section { margin: 14px 0; }
-        .set-title { font-size: 17px; font-weight: bold; margin-bottom: 6px; }
+        .set-close:active {
+            background: rgba(0, 0, 0, 0.15);
+        }
+        .set-section {
+            margin: 14px 0;
+        }
+        .set-title {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
         .setting-bottom-buttons {
-            display: flex; gap: 8px; margin-top: 14px;
-            padding-top: 10px; border-top: 1px solid #b8a788;
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid #b8a788;
             flex-wrap: wrap;
         }
-        .char-row { display: flex; gap: 6px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
-        .char-name { font-weight: 600; min-width: 40px; }
-        .hidden-file-input { display: none; }
+        .char-row {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            margin: 4px 0;
+            flex-wrap: wrap;
+        }
+        .char-name {
+            font-weight: 600;
+            min-width: 40px;
+        }
+        .hidden-file-input {
+            display: none;
+        }
         .set-input {
-            width: 100%; padding: 4px 6px; margin: 2px 0;
-            font-family: inherit; background: rgba(255,255,255,0.6);
-            border: 1px solid #b8a788; border-radius: 4px; font-size: 14px;
+            width: 100%;
+            padding: 4px 6px;
+            margin: 2px 0;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid #b8a788;
+            border-radius: 4px;
+            font-size: 14px;
         }
         .set-txt {
-            width: 100%; padding: 4px 6px; font-family: inherit;
-            background: rgba(255,255,255,0.6); border: 1px solid #b8a788;
-            border-radius: 4px; font-size: 14px;
+            width: 100%;
+            padding: 4px 6px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid #b8a788;
+            border-radius: 4px;
+            font-size: 14px;
         }
         .group-item {
-            background: rgba(0,0,0,0.05); padding: 6px; border-radius: 4px; margin: 4px 0;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 6px;
+            border-radius: 4px;
+            margin: 4px 0;
         }
         .section-title {
-            font-size: 20px; font-weight: bold; margin: 12px 0 6px;
-            border-bottom: 1px solid #b8a788; padding-bottom: 4px;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 12px 0 6px;
+            border-bottom: 1px solid #b8a788;
+            padding-bottom: 4px;
         }
-        .image-upload-box { margin: 6px 0; }
-        .image-upload-box label { display: block; font-weight: 600; margin: 4px 0 2px; }
-        #spritePreview, #bgPreview { font-size: 12px; color: #555; padding: 2px 0; }
-        #storyStatus { font-size: 13px; margin-top: 4px; color: #3a2a1a; }
+        .image-upload-box {
+            margin: 6px 0;
+        }
+        .image-upload-box label {
+            display: block;
+            font-weight: 600;
+            margin: 4px 0 2px;
+        }
+        #spritePreview,
+        #bgPreview {
+            font-size: 12px;
+            color: #555;
+            padding: 2px 0;
+        }
+        #storyStatus {
+            font-size: 13px;
+            margin-top: 4px;
+            color: #3a2a1a;
+        }
+
+        /* ===== 移动端微调 ===== */
         @media(max-width:540px) {
-            .map-title { font-size: 20px !important; }
-            .map-subtitle { font-size: 8px !important; }
-            .building-label { font-size: 9px !important; padding: 0 3px !important; }
-            .person-label { font-size: 9px !important; top: -16px !important; }
-            .person-mark { width: 20px !important; height: 28px !important; }
+            .map-title {
+                font-size: 20px !important;
+            }
+            .map-subtitle {
+                font-size: 8px !important;
+            }
+            .building-label {
+                font-size: 9px !important;
+                padding: 0 3px !important;
+            }
+            .person-label {
+                font-size: 9px !important;
+                top: -16px !important;
+            }
+            .person-mark {
+                width: 20px !important;
+                height: 28px !important;
+            }
+            .chat-bubble {
+                font-size: 12px !important;
+                padding: 8px 14px !important;
+            }
         }
         @media(max-width:400px) {
-            .map-title { font-size: 16px !important; }
-            .map-subtitle { font-size: 6px !important; }
-            .building-label { font-size: 7px !important; padding: 0 2px !important; }
-            .person-label { font-size: 7px !important; top: -14px !important; }
-            .person-mark { width: 16px !important; height: 24px !important; }
+            .map-title {
+                font-size: 16px !important;
+            }
+            .map-subtitle {
+                font-size: 6px !important;
+            }
+            .building-label {
+                font-size: 7px !important;
+                padding: 0 2px !important;
+            }
+            .person-label {
+                font-size: 7px !important;
+                top: -14px !important;
+            }
+            .person-mark {
+                width: 16px !important;
+                height: 24px !important;
+            }
+            .chat-bubble {
+                font-size: 10px !important;
+                padding: 6px 10px !important;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="app-wrap">
-    <div class="parchment-wrap" id="parchmentWrap">
-        <div class="map-content" id="mapContent">
-            <div class="map-title-wrap">
-                <div class="map-title">The Marauder's Map</div>
-                <div class="map-subtitle">月亮脸、虫尾巴、大脚板、尖头叉子先生们献上</div>
-            </div>
-            <svg id="hogwartsSvg" viewBox="0 0 900 620" preserveAspectRatio="xMidYMid meet">
-                <path class="svg-line" d="M100,70 L380,60 L640,80 L760,220 L720,460 L380,520 L80,440 Z"/>
-                <path class="svg-line" d="M200,120 L320,110 L500,135 L590,240 L550,390 L310,420 L170,340 Z"/>
-                <path class="svg-line" d="M280,200 L460,220 L490,320 L340,350 L250,290 Z"/>
-                <path class="svg-line" d="M60,300 C40,400 120,490 220,470"/>
-                <path class="svg-line" d="M700,140 C790,260 740,440 640,490"/>
-                <path class="svg-line" d="M160,240 L40,380" stroke-dasharray="6 4"/>
-                <path class="svg-line" d="M420,100 L800,80" stroke-dasharray="6 4"/>
-                <path class="svg-line" d="M600,310 L820,420" stroke-dasharray="6 4"/>
-                <path class="svg-line" d="M290,400 L100,540" stroke-dasharray="6 4"/>
-                <path class="svg-line" d="M510,190 L740,310" stroke-dasharray="6 4"/>
-                <path class="svg-line" d="M220,160 L390,290" stroke-dasharray="6 4"/>
-                <path class="svg-line" d="M460,420 L650,510" stroke-dasharray="6 4"/>
-                <path class="svg-line" d="M50,480 L130,530 L180,510 L110,460 Z"/>
-                <path class="svg-line" d="M780,420 L840,480 L810,540 L740,500 Z"/>
-                <path class="svg-line" d="M760,120 L860,180 L830,280 L740,240 Z"/>
-                <path class="svg-line" d="M30,120 C20,220 120,280 180,220 C220,140 120,80 30,120"/>
-                <path class="svg-line" d="M780,50 L880,50 L880,320 L780,320 Z"/>
-                <path class="svg-line" d="M180,340 L820,120" stroke-dasharray="6 4"/>
-                <path class="svg-line" d="M140,520 L830,240" stroke-dasharray="6 4"/>
-            </svg>
-            <div class="building-label" style="left:140px;top:80px;">校长塔</div>
-            <div class="building-label" style="left:240px;top:100px;">格兰芬多塔</div>
-            <div class="building-label" style="left:340px;top:75px;">大礼堂</div>
-            <div class="building-label" style="left:440px;top:95px;">拉文克劳塔</div>
-            <div class="building-label" style="left:580px;top:110px;">天文塔</div>
-            <div class="building-label" style="left:520px;top:160px;">图书馆</div>
-            <div class="building-label" style="left:410px;top:175px;">占卜课</div>
-            <div class="building-label" style="left:310px;top:225px;">庭院</div>
-            <div class="building-label" style="left:470px;top:240px;">魔咒走廊</div>
-            <div class="building-label" style="left:540px;top:270px;">黑魔法防御</div>
-            <div class="building-label" style="left:220px;top:260px;">魔法史</div>
-            <div class="building-label" style="left:270px;top:310px;">奖品陈列室</div>
-            <div class="building-label" style="left:380px;top:300px;">级长盥洗室</div>
-            <div class="building-label" style="left:450px;top:330px;">桃金娘盥洗室</div>
-            <div class="building-label" style="left:330px;top:360px;">有求必应屋</div>
-            <div class="building-label" style="left:180px;top:340px;">独眼女巫</div>
-            <div class="building-label" style="left:120px;top:390px;">魔药课</div>
-            <div class="building-label" style="left:210px;top:410px;">斯莱特林</div>
-            <div class="building-label" style="left:290px;top:440px;">赫奇帕奇</div>
-            <div class="building-label" style="left:420px;top:400px;">校医院</div>
-            <div class="building-label" style="left:80px;top:490px;">猫头鹰棚屋</div>
-            <div class="building-label" style="left:140px;top:520px;">打人柳</div>
-            <div class="building-label" style="left:720px;top:170px;">魁地奇</div>
-            <div class="building-label" style="left:740px;top:320px;">温室</div>
-            <div class="building-label" style="left:760px;top:430px;">海格小屋</div>
-            <div class="building-label" style="left:780px;top:500px;">禁林</div>
-            <div class="building-label" style="left:260px;top:375px;">厨房</div>
-            <div class="building-label" style="left:110px;top:430px;">密室入口</div>
-            <div class="building-label" style="left:40px;top:180px;">黑湖</div>
-            <div class="building-label" style="left:810px;top:70px;">蜂蜜公爵</div>
-            <div class="building-label" style="left:812px;top:110px;">猪头酒吧</div>
-            <div class="building-label" style="left:814px;top:150px;">帕笛芙茶馆</div>
-            <div class="building-label" style="left:816px;top:190px;">德维与班斯</div>
-            <div class="building-label" style="left:818px;top:240px;">尖叫棚屋</div>
-            <div class="building-label" style="left:820px;top:280px;">霍格莫德车站</div>
-            <svg id="trackLineContainer" class="track-line" viewBox="0 0 900 620" preserveAspectRatio="xMidYMid meet">
-                <path class="track-path" id="trackPathEl"></path>
-            </svg>
-            <div id="personMarkContainer"></div>
-        </div>
-    </div>
-    <div class="bottom-bar">
-        <div class="spell-input-wrap">
-            <input class="spell-input" id="spellInput" placeholder="咒语：我庄严宣誓我不干好事">
-            <button class="btn" id="spellBtn">施放</button>
-            <button class="btn" id="voiceBtn">语音</button>
-            <button class="btn" id="finishBtn">结束</button>
-            <button class="btn" id="openSettingBtn">设置</button>
-        </div>
-    </div>
-</div>
+    <div class="app-wrap">
 
-<!-- 聊天弹窗 -->
-<div class="chat-modal-overlay" id="chatOverlay">
-    <div class="chat-box">
-        <div class="chat-bg" id="chatBg"></div>
-        <div class="chat-sprite-wrap">
-            <img class="chat-sprite" id="chatSprite" src="" alt="角色">
-        </div>
-        <div class="chat-right-wrap">
-            <div class="chat-header">
-                <div><span class="chat-title" id="chatCharName">角色</span><span class="chat-status" id="chatCharStatus">行走中</span></div>
-                <button class="btn" id="chatCloseBtn">关闭</button>
+        <!-- 地图 -->
+        <div class="parchment-wrap" id="parchmentWrap">
+            <div class="map-content" id="mapContent">
+                <div class="map-title-wrap">
+                    <div class="map-title">The Marauder's Map</div>
+                    <div class="map-subtitle">月亮脸、虫尾巴、大脚板、尖头叉子先生们献上</div>
+                </div>
+
+                <svg id="hogwartsSvg" viewBox="0 0 900 620" preserveAspectRatio="xMidYMid meet">
+                    <path class="svg-line" d="M100,70 L380,60 L640,80 L760,220 L720,460 L380,520 L80,440 Z"/>
+                    <path class="svg-line" d="M200,120 L320,110 L500,135 L590,240 L550,390 L310,420 L170,340 Z"/>
+                    <path class="svg-line" d="M280,200 L460,220 L490,320 L340,350 L250,290 Z"/>
+                    <path class="svg-line" d="M60,300 C40,400 120,490 220,470"/>
+                    <path class="svg-line" d="M700,140 C790,260 740,440 640,490"/>
+                    <path class="svg-line" d="M160,240 L40,380" stroke-dasharray="6 4"/>
+                    <path class="svg-line" d="M420,100 L800,80" stroke-dasharray="6 4"/>
+                    <path class="svg-line" d="M600,310 L820,420" stroke-dasharray="6 4"/>
+                    <path class="svg-line" d="M290,400 L100,540" stroke-dasharray="6 4"/>
+                    <path class="svg-line" d="M510,190 L740,310" stroke-dasharray="6 4"/>
+                    <path class="svg-line" d="M220,160 L390,290" stroke-dasharray="6 4"/>
+                    <path class="svg-line" d="M460,420 L650,510" stroke-dasharray="6 4"/>
+                    <path class="svg-line" d="M50,480 L130,530 L180,510 L110,460 Z"/>
+                    <path class="svg-line" d="M780,420 L840,480 L810,540 L740,500 Z"/>
+                    <path class="svg-line" d="M760,120 L860,180 L830,280 L740,240 Z"/>
+                    <path class="svg-line" d="M30,120 C20,220 120,280 180,220 C220,140 120,80 30,120"/>
+                    <path class="svg-line" d="M780,50 L880,50 L880,320 L780,320 Z"/>
+                    <path class="svg-line" d="M180,340 L820,120" stroke-dasharray="6 4"/>
+                    <path class="svg-line" d="M140,520 L830,240" stroke-dasharray="6 4"/>
+                </svg>
+
+                <!-- 建筑标签 -->
+                <div class="building-label" style="left:140px;top:80px;">校长塔</div>
+                <div class="building-label" style="left:240px;top:100px;">格兰芬多塔</div>
+                <div class="building-label" style="left:340px;top:75px;">大礼堂</div>
+                <div class="building-label" style="left:440px;top:95px;">拉文克劳塔</div>
+                <div class="building-label" style="left:580px;top:110px;">天文塔</div>
+                <div class="building-label" style="left:520px;top:160px;">图书馆</div>
+                <div class="building-label" style="left:410px;top:175px;">占卜课</div>
+                <div class="building-label" style="left:310px;top:225px;">庭院</div>
+                <div class="building-label" style="left:470px;top:240px;">魔咒走廊</div>
+                <div class="building-label" style="left:540px;top:270px;">黑魔法防御</div>
+                <div class="building-label" style="left:220px;top:260px;">魔法史</div>
+                <div class="building-label" style="left:270px;top:310px;">奖品陈列室</div>
+                <div class="building-label" style="left:380px;top:300px;">级长盥洗室</div>
+                <div class="building-label" style="left:450px;top:330px;">桃金娘盥洗室</div>
+                <div class="building-label" style="left:330px;top:360px;">有求必应屋</div>
+                <div class="building-label" style="left:180px;top:340px;">独眼女巫</div>
+                <div class="building-label" style="left:120px;top:390px;">魔药课</div>
+                <div class="building-label" style="left:210px;top:410px;">斯莱特林</div>
+                <div class="building-label" style="left:290px;top:440px;">赫奇帕奇</div>
+                <div class="building-label" style="left:420px;top:400px;">校医院</div>
+                <div class="building-label" style="left:80px;top:490px;">猫头鹰棚屋</div>
+                <div class="building-label" style="left:140px;top:520px;">打人柳</div>
+                <div class="building-label" style="left:720px;top:170px;">魁地奇</div>
+                <div class="building-label" style="left:740px;top:320px;">温室</div>
+                <div class="building-label" style="left:760px;top:430px;">海格小屋</div>
+                <div class="building-label" style="left:780px;top:500px;">禁林</div>
+                <div class="building-label" style="left:260px;top:375px;">厨房</div>
+                <div class="building-label" style="left:110px;top:430px;">密室入口</div>
+                <div class="building-label" style="left:40px;top:180px;">黑湖</div>
+                <div class="building-label" style="left:810px;top:70px;">蜂蜜公爵</div>
+                <div class="building-label" style="left:812px;top:110px;">猪头酒吧</div>
+                <div class="building-label" style="left:814px;top:150px;">帕笛芙茶馆</div>
+                <div class="building-label" style="left:816px;top:190px;">德维与班斯</div>
+                <div class="building-label" style="left:818px;top:240px;">尖叫棚屋</div>
+                <div class="building-label" style="left:820px;top:280px;">霍格莫德车站</div>
+
+                <svg id="trackLineContainer" class="track-line" viewBox="0 0 900 620" preserveAspectRatio="xMidYMid meet">
+                    <path class="track-path" id="trackPathEl"></path>
+                </svg>
+
+                <div id="personMarkContainer"></div>
+                <!-- 聊天气泡容器 -->
+                <div id="bubbleContainer"></div>
             </div>
-            <div class="chat-content" id="chatContent"></div>
-            <div class="api-config-area">
-                <div>模式：<label><input type="radio" name="chatMode" value="local" checked> 字卡</label><label><input type="radio" name="chatMode" value="api"> AI</label></div>
-                <div id="apiKeyWrap" style="display:none;">
-                    <input type="password" id="apiKeyInput" placeholder="API Key">
-                    <input type="text" id="apiBaseUrlInput" placeholder="接口地址">
-                    <input type="text" id="apiModelInput" placeholder="模型名">
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="bottom-bar">
+            <div class="spell-input-wrap">
+                <input class="spell-input" id="spellInput" placeholder="咒语：我庄严宣誓我不干好事">
+                <button class="btn" id="spellBtn">施放</button>
+                <button class="btn" id="voiceBtn">语音</button>
+                <button class="btn" id="finishBtn">结束</button>
+                <button class="btn" id="openSettingBtn">设置</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 聊天弹窗 -->
+    <div class="chat-modal-overlay" id="chatOverlay">
+        <div class="chat-box">
+            <div class="chat-bg" id="chatBg"></div>
+            <div class="chat-sprite-wrap">
+                <img class="chat-sprite" id="chatSprite" src="" alt="角色">
+            </div>
+            <div class="chat-right-wrap">
+                <div class="chat-header">
+                    <div>
+                        <span class="chat-title" id="chatCharName">角色</span>
+                        <span class="chat-status" id="chatCharStatus">行走中</span>
+                    </div>
+                    <button class="btn" id="chatCloseBtn">关闭</button>
+                </div>
+                <div class="chat-content" id="chatContent"></div>
+                <div class="api-config-area">
+                    <div>模式：
+                        <label><input type="radio" name="chatMode" value="local" checked> 字卡</label>
+                        <label><input type="radio" name="chatMode" value="api"> AI</label>
+                    </div>
+                    <div id="apiKeyWrap" style="display:none;">
+                        <input type="password" id="apiKeyInput" placeholder="API Key">
+                        <input type="text" id="apiBaseUrlInput" placeholder="接口地址">
+                        <input type="text" id="apiModelInput" placeholder="模型名">
+                    </div>
+                </div>
+                <div class="chat-ctrl-row">
+                    <button class="btn" id="exportBtn">导出卡片</button>
+                    <button class="btn" id="importBtn">导入卡片</button>
+                    <input type="file" id="importCharFile" accept=".json" class="hidden-file-input">
+                    <button class="btn" id="collectBtn">收集台词</button>
+                </div>
+                <div class="chat-input-area">
+                    <input class="chat-input" id="chatInput" placeholder="输入...">
+                    <button class="btn" id="chatSendBtn">发送</button>
                 </div>
             </div>
-            <div class="chat-ctrl-row">
-                <button class="btn" id="exportBtn">导出卡片</button>
-                <button class="btn" id="importBtn">导入卡片</button>
-                <input type="file" id="importCharFile" accept=".json" class="hidden-file-input">
-                <button class="btn" id="collectBtn">收集台词</button>
-            </div>
-            <div class="chat-input-area">
-                <input class="chat-input" id="chatInput" placeholder="输入...">
-                <button class="btn" id="chatSendBtn">发送</button>
-            </div>
         </div>
     </div>
-</div>
 
-<!-- 设置面板 -->
-<div class="setting-panel" id="settingPanel">
-    <div class="set-close" id="setClose">X</div>
-    <div class="set-section">
-        <div class="set-title">存档</div>
-        <button class="btn" id="exportAllSave">导出全部</button>
-        <button class="btn" id="importAllSave">导入全部</button>
-        <input type="file" id="fullSaveFile" accept=".json" class="hidden-file-input">
+    <!-- 设置面板 -->
+    <div class="setting-panel" id="settingPanel">
+        <div class="set-close" id="setClose">X</div>
+        <div class="set-section">
+            <div class="set-title">存档</div>
+            <button class="btn" id="exportAllSave">导出全部</button>
+            <button class="btn" id="importAllSave">导入全部</button>
+            <input type="file" id="fullSaveFile" accept=".json" class="hidden-file-input">
+        </div>
+        <div class="section-title">设置</div>
+        <div class="set-section">
+            <div class="set-title">角色管理</div>
+            <div id="charManageList"></div>
+            <button class="btn" id="addCharBtn">新增角色</button>
+        </div>
+        <div class="set-section">
+            <div class="set-title">追踪</div>
+            <select class="set-input" id="trackTargetSelect"><option value="-1">关闭</option></select>
+        </div>
+        <div class="set-section">
+            <div class="set-title">游走</div>
+            <label><input type="checkbox" id="autoWanderToggle" checked> 自动游走</label><br>
+            <label><input type="checkbox" id="showTrackToggle" checked> 显示轨迹</label>
+        </div>
+        <div class="set-section">
+            <div class="set-title">羁绊分组</div>
+            <div id="groupListWrap"></div>
+            <button class="btn" id="addGroupBtn">新增分组</button>
+            <div><input type="file" id="groupDialogueFile" accept=".json" class="hidden-file-input">
+                <button class="btn" onclick="document.getElementById('groupDialogueFile').click()">导入同组对话</button></div>
+        </div>
+        <div class="set-section">
+            <div class="set-title">角色图片</div>
+            <select class="set-input" id="imageCharSelect"><option value="">选择角色</option></select>
+            <div><label>立绘</label><input type="file" accept="image/*" id="spriteUpload" class="set-input"></div>
+            <div id="spritePreview">无</div>
+            <div><label>背景</label><input type="file" accept="image/*" id="bgUpload" class="set-input"></div>
+            <div id="bgPreview">无</div>
+        </div>
+        <div class="set-section">
+            <div class="set-title">状态</div>
+            <select class="set-input" id="statusEditCharSelect"><option value="">选择角色</option></select>
+            <select class="set-input" id="statusSelect">
+                <option>行走中</option><option>休息中</option><option>闲逛</option><option>上课</option><option>巡逻</option>
+            </select>
+            <input class="set-input" id="customStatusInput" placeholder="自定义状态">
+            <button class="btn" id="saveStatusBtn">保存状态</button>
+        </div>
+        <div class="set-section">
+            <div class="set-title">台词</div>
+            <select class="set-input" id="charQuoteSelect"><option value="">选择角色</option></select>
+            <textarea class="set-txt" id="charQuoteTextarea" style="height:100px;" placeholder="每行一条台词"></textarea>
+        </div>
+        <!-- 文游事件导入 -->
+        <div class="set-section">
+            <div class="set-title">文游事件（分支剧情）</div>
+            <input type="file" id="storyFile" accept=".json" class="hidden-file-input">
+            <button class="btn" onclick="document.getElementById('storyFile').click()">导入事件剧本</button>
+            <div id="storyStatus">未导入</div>
+            <div style="font-size:12px;color:#555;margin-top:4px;">JSON格式：数组，每个事件包含 id, triggerCharIndex, lines, options 等</div>
+        </div>
+        <div class="setting-bottom-buttons">
+            <button class="btn" id="saveExitBtn">保存并退出</button>
+            <button class="btn" id="cancelBtn">取消</button>
+        </div>
     </div>
-    <div class="section-title">设置</div>
-    <div class="set-section">
-        <div class="set-title">角色管理</div>
-        <div id="charManageList"></div>
-        <button class="btn" id="addCharBtn">新增角色</button>
-    </div>
-    <div class="set-section">
-        <div class="set-title">追踪</div>
-        <select class="set-input" id="trackTargetSelect"><option value="-1">关闭</option></select>
-    </div>
-    <div class="set-section">
-        <div class="set-title">游走</div>
-        <label><input type="checkbox" id="autoWanderToggle" checked> 自动游走</label><br>
-        <label><input type="checkbox" id="showTrackToggle" checked> 显示轨迹</label>
-    </div>
-    <div class="set-section">
-        <div class="set-title">羁绊分组</div>
-        <div id="groupListWrap"></div>
-        <button class="btn" id="addGroupBtn">新增分组</button>
-        <div><input type="file" id="groupDialogueFile" accept=".json" class="hidden-file-input">
-            <button class="btn" id="groupDialogueBtn">导入同组对话</button></div>
-    </div>
-    <div class="set-section">
-        <div class="set-title">角色图片</div>
-        <select class="set-input" id="imageCharSelect"><option value="">选择角色</option></select>
-        <div><label>立绘</label><input type="file" accept="image/*" id="spriteUpload" class="set-input"></div>
-        <div id="spritePreview">无</div>
-        <div><label>背景</label><input type="file" accept="image/*" id="bgUpload" class="set-input"></div>
-        <div id="bgPreview">无</div>
-    </div>
-    <div class="set-section">
-        <div class="set-title">状态</div>
-        <select class="set-input" id="statusEditCharSelect"><option value="">选择角色</option></select>
-        <select class="set-input" id="statusSelect">
-            <option>行走中</option><option>休息中</option><option>闲逛</option><option>上课</option><option>巡逻</option>
-        </select>
-        <input class="set-input" id="customStatusInput" placeholder="自定义状态">
-        <button class="btn" id="saveStatusBtn">保存状态</button>
-    </div>
-    <div class="set-section">
-        <div class="set-title">台词</div>
-        <select class="set-input" id="charQuoteSelect"><option value="">选择角色</option></select>
-        <textarea class="set-txt" id="charQuoteTextarea" style="height:100px;" placeholder="每行一条台词"></textarea>
-    </div>
-    <div class="set-section">
-        <div class="set-title">文游事件（分支剧情）</div>
-        <input type="file" id="storyFile" accept=".json" class="hidden-file-input">
-        <button class="btn" id="storyBtn">导入事件剧本</button>
-        <div id="storyStatus">未导入</div>
-        <div style="font-size:12px;color:#555;margin-top:4px;">JSON格式：数组，每个事件包含 id, triggerCharIndex, lines, options 等</div>
-    </div>
-    <div class="setting-bottom-buttons">
-        <button class="btn" id="saveExitBtn">保存并退出</button>
-        <button class="btn" id="cancelBtn">取消</button>
-    </div>
-</div>
 
-<script>
-/* ============================================================
-   平板触摸修复版：所有交互使用 addEventListener 绑定
-   ============================================================ */
-(function() {
-    'use strict';
+    <script>
+        /* ============================================================
+           活点地图 + 文游分支 + 聊天气泡触发
+           ============================================================ */
+        (function() {
+            'use strict';
 
-    // ----- 常量 -----
-    const STORAGE_KEY = "hogwarts_map_save";
-    const API_CFG_STORAGE = "llm_api_config";
-    const STORY_KEY = "hogwarts_story_events";
-    const SESSION_KEY = "hogwarts_chat_sessions";
+            // ----- 常量 -----
+            const STORAGE_KEY = "hogwarts_map_save";
+            const API_CFG_STORAGE = "llm_api_config";
+            const STORY_KEY = "hogwarts_story_events";
+            const SESSION_KEY = "hogwarts_chat_sessions";
+            const BUBBLE_TRIGGER_DIST = 110; // 触发距离
+            const BUBBLE_GROUP_INDICES = [0, 1, 2]; // 铁三角索引
 
-    // ----- DOM 引用 -----
-    const mapContent = document.getElementById("mapContent");
-    const personMarkContainer = document.getElementById("personMarkContainer");
-    const trackPathEl = document.getElementById("trackPathEl");
-    const settingPanel = document.getElementById("settingPanel");
-    const chatOverlay = document.getElementById("chatOverlay");
-    const importCharFile = document.getElementById("importCharFile");
-    const groupDialogueFile = document.getElementById("groupDialogueFile");
-    const fullSaveFile = document.getElementById("fullSaveFile");
-    const storyFile = document.getElementById("storyFile");
-    const parchmentWrap = document.getElementById("parchmentWrap");
-    const chatContent = document.getElementById("chatContent");
-    const chatSprite = document.getElementById("chatSprite");
-    const chatBg = document.getElementById("chatBg");
-    const chatCharName = document.getElementById("chatCharName");
-    const chatCharStatus = document.getElementById("chatCharStatus");
+            // ----- DOM 引用 -----
+            const mapContent = document.getElementById("mapContent");
+            const personMarkContainer = document.getElementById("personMarkContainer");
+            const trackPathEl = document.getElementById("trackPathEl");
+            const settingPanel = document.getElementById("settingPanel");
+            const chatOverlay = document.getElementById("chatOverlay");
+            const importCharFile = document.getElementById("importCharFile");
+            const groupDialogueFile = document.getElementById("groupDialogueFile");
+            const fullSaveFile = document.getElementById("fullSaveFile");
+            const storyFile = document.getElementById("storyFile");
+            const parchmentWrap = document.getElementById("parchmentWrap");
+            const chatContent = document.getElementById("chatContent");
+            const chatSprite = document.getElementById("chatSprite");
+            const chatBg = document.getElementById("chatBg");
+            const chatCharName = document.getElementById("chatCharName");
+            const chatCharStatus = document.getElementById("chatCharStatus");
+            const bubbleContainer = document.getElementById("bubbleContainer");
 
-    // ----- 状态 -----
-    let charList = [];
-    let currentCharIndex = -1;
-    let trackTargetIndex = -1;
-    let wanderTimer = null;
-    let trackPoints = [];
-    let chatHistory = [];
-    let personDomList = [];
-    let bondGroups = [];
-    let voiceOn = false;
-    let lastPosUpdateTs = 0;
-    let lastCharPos = {};
-    let storyEvents = [];
-    let currentEventId = null;
-    let visitedEvents = {};
-    let chatSessions = {};
-    let llmConfig = { apiKey: "", baseUrl: "", model: "" };
+            // ----- 状态 -----
+            let charList = [];
+            let currentCharIndex = -1;
+            let trackTargetIndex = -1;
+            let wanderTimer = null;
+            let trackPoints = [];
+            let chatHistory = [];
+            let personDomList = [];
+            let bondGroups = [];
+            let voiceOn = false;
+            let lastPosUpdateTs = 0;
+            let lastCharPos = {};
 
-    // ----- 工具 -----
-    function safeGet(key, fallback) {
-        try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (_) { return fallback; }
-    }
-    function safeSet(key, val) {
-        try { localStorage.setItem(key, JSON.stringify(val)); } catch (_) {}
-    }
-    function getPersonSvg() {
-        return `<svg class="person-svg" viewBox="0 0 24 34"><circle cx="12" cy="7" r="5" fill="#222"/><line x1="12" y1="12" x2="12" y2="22" stroke="#222" stroke-width="2"/><line x1="12" y1="15" x2="5" y2="19" stroke="#222" stroke-width="2"/><line x1="12" y1="15" x2="19" y2="19" stroke="#222" stroke-width="2"/><line x1="12" y1="22" x2="7" y2="32" stroke="#222" stroke-width="2"/><line x1="12" y1="22" x2="17" y2="32" stroke="#222" stroke-width="2"/></svg>`;
-    }
+            // 文游事件
+            let storyEvents = [];
+            let currentEventId = null;
+            let visitedEvents = {};
 
-    // ----- 数据持久化 -----
-    function saveAllData() {
-        safeSet(STORAGE_KEY, { charList, trackTargetIndex, bondGroups });
-        safeSet(STORY_KEY, { storyEvents, visitedEvents });
-        const sessions = {};
-        for (let idx in chatSessions) {
-            const s = chatSessions[idx];
-            sessions[idx] = { html: s.html, eventId: s.eventId, history: s.history || [] };
-        }
-        safeSet(SESSION_KEY, sessions);
-    }
-    function loadAllData() {
-        const main = safeGet(STORAGE_KEY, null);
-        if (main) { charList = main.charList || []; trackTargetIndex = main.trackTargetIndex ?? -1; bondGroups = main.bondGroups || []; }
-        const story = safeGet(STORY_KEY, null);
-        if (story) { storyEvents = story.storyEvents || []; visitedEvents = story.visitedEvents || {}; }
-        const sessions = safeGet(SESSION_KEY, null);
-        if (sessions) { chatSessions = sessions; }
-    }
+            // 聊天会话持久化
+            let chatSessions = {};
 
-    // ----- 地图缩放 -----
-    let resizeTimer = null;
-    function resizeMapScale() {
-        try {
-            if (!parchmentWrap) return;
-            const mapW = 900, mapH = 620;
-            const parent = parchmentWrap.parentElement;
-            const availW = parent.clientWidth - 8;
-            const availH = parent.clientHeight - 8 - 40;
-            if (availW <= 0 || availH <= 0) return;
-            let scale = Math.min(availW / mapW, availH / mapH, 1);
-            if (scale < 0.5) scale = 0.5;
-            mapContent.style.transform = `scale(${scale})`;
-            mapContent.style.transformOrigin = "top left";
-            parchmentWrap.style.width = (mapW * scale) + "px";
-            parchmentWrap.style.height = (mapH * scale) + "px";
-            parchmentWrap.style.margin = "0 auto";
-            const baseFont = 11;
-            const newFont = Math.max(7, baseFont * scale);
-            document.querySelectorAll('.building-label').forEach(el => el.style.fontSize = newFont + 'px');
-            document.querySelectorAll('.person-label').forEach(el => el.style.fontSize = newFont + 'px');
-            const markSize = Math.max(16, 24 * scale);
-            document.querySelectorAll('.person-mark').forEach(el => {
-                el.style.width = markSize + 'px';
-                el.style.height = (markSize * 34 / 24) + 'px';
-            });
-        } catch (e) { console.warn("resizeMapScale error:", e); }
-    }
-    function debouncedResize() {
-        if (resizeTimer) clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(resizeMapScale, 150);
-    }
+            let llmConfig = { apiKey: "", baseUrl: "", model: "" };
 
-    // ----- 咒语逻辑 -----
-    function handleSpellInput() {
-        const val = document.getElementById("spellInput").value.trim();
-        if (val.includes("我庄严宣誓我不干好事") || val.toLowerCase().includes("i solemnly swear")) {
-            mapContent.classList.add("active");
-            startWander();
-        }
-    }
-    function finishUse() {
-        mapContent.classList.remove("active");
-        personMarkContainer.innerHTML = "";
-        personDomList = [];
-        trackPoints = [];
-        trackPathEl.setAttribute("d", "");
-        trackPathEl.classList.remove("visible");
-        stopWander();
-        if (chatOverlay.classList.contains('show')) {
-            saveCurrentSession();
-            chatOverlay.classList.remove('show');
-        }
-    }
-    function toggleVoiceSpell() {
-        if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-            alert("浏览器不支持语音");
-            return;
-        }
-        const btn = document.getElementById("voiceBtn");
-        if (voiceOn) { voiceOn = false; btn.classList.remove("recording"); return; }
-        voiceOn = true; btn.classList.add("recording");
-        const rec = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
-        rec.lang = "zh-CN";
-        rec.onresult = function(e) {
-            const text = e.results[0][0].transcript;
-            if (text.includes("我庄严宣誓我不干好事")) { mapContent.classList.add("active"); startWander(); }
-            voiceOn = false; btn.classList.remove("recording");
-        };
-        rec.onerror = function() { voiceOn = false; btn.classList.remove("recording"); };
-        rec.start();
-    }
+            // 气泡DOM引用
+            let bubbleElement = null;
+            let bubbleShown = false;
 
-    // ----- 设置面板 -----
-    function openSetting() {
-        settingPanel.classList.add("open");
-        refreshCharSelects();
-        refreshTrackSelect();
-        renderCharManageList();
-        renderBondGroupList();
-        document.getElementById("storyStatus").innerText = storyEvents.length ? `已导入 ${storyEvents.length} 个事件` : "未导入";
-    }
-    function closeSetting() { settingPanel.classList.remove("open"); }
-    function saveAndExitSetting() {
-        const idx = Number(document.getElementById("charQuoteSelect").value);
-        if (!isNaN(idx) && charList[idx]) {
-            charList[idx].quotes = document.getElementById("charQuoteTextarea").value.split("\n").filter(s => s.trim());
-        }
-        saveAllData();
-        rebuildPersonDom();
-        closeSetting();
-        alert("已保存");
-    }
-    function refreshTrackSelect() {
-        const sel = document.getElementById("trackTargetSelect");
-        sel.innerHTML = `<option value="-1">关闭追踪</option>`;
-        charList.forEach((c, i) => { sel.innerHTML += `<option value="${i}">${c.name}</option>`; });
-        sel.value = trackTargetIndex;
-    }
-    function changeTrackTarget() {
-        trackTargetIndex = Number(document.getElementById("trackTargetSelect").value);
-        trackPoints = [];
-        rebuildPersonDom();
-        updateTrackLine();
-    }
-    function refreshCharSelects() {
-        const ids = ['charQuoteSelect', 'imageCharSelect', 'statusEditCharSelect'];
-        ids.forEach(id => {
-            const sel = document.getElementById(id);
-            if (!sel) return;
-            const current = sel.value;
-            sel.innerHTML = `<option value="">${id==='statusEditCharSelect'?'请选择角色':'选择角色'}</option>`;
-            charList.forEach((c, i) => { sel.innerHTML += `<option value="${i}">${c.name}</option>`; });
-            sel.value = current;
-        });
-    }
-    function renderCharManageList() {
-        const wrap = document.getElementById("charManageList");
-        wrap.innerHTML = "";
-        charList.forEach((c, i) => {
-            const row = document.createElement('div');
-            row.className = 'char-row';
-            row.innerHTML = `<span class="char-name">${c.name}</span>`;
-            const renameBtn = document.createElement('button');
-            renameBtn.className = 'btn';
-            renameBtn.textContent = '改名';
-            renameBtn.addEventListener('click', function(e) { e.stopPropagation(); window.editCharName(i); });
-            row.appendChild(renameBtn);
-            const delBtn = document.createElement('button');
-            delBtn.className = 'btn';
-            delBtn.textContent = '删除';
-            delBtn.addEventListener('click', function(e) { e.stopPropagation(); window.delChar(i); });
-            row.appendChild(delBtn);
-            wrap.appendChild(row);
-        });
-    }
-    window.editCharName = function(idx) {
-        const newName = prompt("修改名字", charList[idx].name);
-        if (!newName) return;
-        charList[idx].name = newName;
-        refreshCharSelects();
-        refreshTrackSelect();
-        renderCharManageList();
-        rebuildPersonDom();
-        saveAllData();
-    };
-    window.delChar = function(idx) {
-        if (!confirm(`删除${charList[idx].name}？`)) return;
-        charList.splice(idx, 1);
-        if (trackTargetIndex === idx) trackTargetIndex = -1;
-        bondGroups.forEach(g => {
-            g.members = g.members.filter(m => m !== idx).map(m => m > idx ? m - 1 : m);
-        });
-        delete chatSessions[idx];
-        refreshCharSelects();
-        refreshTrackSelect();
-        renderCharManageList();
-        renderBondGroupList();
-        rebuildPersonDom();
-        saveAllData();
-    };
-    function loadCharQuotes() {
-        const idx = Number(document.getElementById("charQuoteSelect").value);
-        if (!isNaN(idx) && charList[idx]) {
-            document.getElementById("charQuoteTextarea").value = charList[idx].quotes.join("\n");
-        }
-    }
-    function saveCharStatus() {
-        const idx = Number(document.getElementById("statusEditCharSelect").value);
-        if (isNaN(idx) || !charList[idx]) { alert("请先选择角色"); return; }
-        const sel = document.getElementById("statusSelect").value;
-        const custom = document.getElementById("customStatusInput").value.trim();
-        charList[idx].status = custom || sel;
-        alert(`已保存${charList[idx].name}状态`);
-        saveAllData();
-    }
-    function renderBondGroupList() {
-        const wrap = document.getElementById("groupListWrap");
-        wrap.innerHTML = "";
-        bondGroups.forEach((g, gIdx) => {
-            const div = document.createElement('div');
-            div.className = 'group-item';
-            div.innerHTML = `<strong>${g.name}</strong> (索引：${g.members.join(",")||"无"})<input class="set-input" id="groupMemInput_${gIdx}" value="${g.members.join(",")}" placeholder="角色索引">`;
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'btn';
-            saveBtn.textContent = '保存';
-            saveBtn.addEventListener('click', function() { window.saveGroupMember(gIdx); });
-            div.appendChild(saveBtn);
-            const delBtn = document.createElement('button');
-            delBtn.className = 'btn';
-            delBtn.textContent = '删除';
-            delBtn.addEventListener('click', function() { window.deleteBondGroup(gIdx); });
-            div.appendChild(delBtn);
-            if (g.dialogues && g.dialogues.length) {
-                const info = document.createElement('div');
-                info.textContent = `已加载${g.dialogues.length}组对话`;
-                div.appendChild(info);
+            // ----- 工具 -----
+            function safeGet(key, fallback) {
+                try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (_) { return fallback; }
             }
-            wrap.appendChild(div);
-        });
-    }
-    window.saveGroupMember = function(gIdx) {
-        const dom = document.getElementById("groupMemInput_" + gIdx);
-        const arr = dom.value.split(",").map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n >= 0 && n < charList.length);
-        bondGroups[gIdx].members = arr;
-        renderBondGroupList();
-        saveAllData();
-        alert("组员已保存");
-    };
-    window.deleteBondGroup = function(gIdx) {
-        if (!confirm("删除该分组？")) return;
-        bondGroups.splice(gIdx, 1);
-        renderBondGroupList();
-        saveAllData();
-    };
-    function addBondGroup() {
-        const name = prompt("分组名称");
-        if (!name) return;
-        bondGroups.push({ name, members: [], dialogues: [] });
-        renderBondGroupList();
-        saveAllData();
-    }
-    function addCharacter() {
-        const name = prompt("角色名字");
-        if (!name) return;
-        charList.push({
-            name, status: "行走中", quotes: [], sprite: "", bg: "",
-            x: Math.random() * 780 + 80, y: Math.random() * 540 + 60,
-            targetX: Math.random() * 780 + 80, targetY: Math.random() * 540 + 60
-        });
-        refreshCharSelects();
-        refreshTrackSelect();
-        renderCharManageList();
-        rebuildPersonDom();
-        saveAllData();
-    }
 
-    // ----- 人物渲染 -----
-    function rebuildPersonDom() {
-        personMarkContainer.innerHTML = "";
-        personDomList = [];
-        charList.forEach((ch, idx) => {
-            const div = document.createElement("div");
-            div.className = "person-mark" + (idx === trackTargetIndex ? " track-target" : "");
-            div.dataset.idx = idx;
-            div.style.left = ch.x + "px";
-            div.style.top = ch.y + "px";
-            div.innerHTML = getPersonSvg() + `<div class="person-label">${ch.name}</div>`;
-            div.addEventListener("click", function(e) {
-                e.stopPropagation();
-                const i = Number(this.dataset.idx);
-                if (!isNaN(i)) openChat(i);
-            });
-            div.addEventListener("touchstart", function(e) {
-                // 防止重复触发，但click已经能触发，touchstart用于辅助
-            }, { passive: true });
-            personMarkContainer.appendChild(div);
-            personDomList.push(div);
-        });
-        resizeMapScale();
-    }
-    function updatePersonPositionOnly() {
-        charList.forEach((ch, idx) => {
-            const dom = personDomList[idx];
-            if (!dom) return;
-            dom.style.left = ch.x + "px";
-            dom.style.top = ch.y + "px";
-            dom.className = "person-mark" + (idx === trackTargetIndex ? " track-target" : "");
-        });
-    }
+            function safeSet(key, val) {
+                try { localStorage.setItem(key, JSON.stringify(val)); } catch (_) {}
+            }
 
-    // ----- 追踪线 -----
-    function updateTrackLine() {
-        const showTrack = document.getElementById("showTrackToggle").checked;
-        trackPathEl.setAttribute("d", "");
-        trackPathEl.classList.remove("visible");
-        if (trackTargetIndex === -1 || !showTrack || trackPoints.length < 2) return;
-        let d = `M${trackPoints[0].x} ${trackPoints[0].y}`;
-        for (let i = 1; i < trackPoints.length; i++) d += ` L${trackPoints[i].x} ${trackPoints[i].y}`;
-        trackPathEl.setAttribute("d", d);
-        trackPathEl.classList.add("visible");
-    }
+            function getPersonSvg() {
+                return `<svg class="person-svg" viewBox="0 0 24 34"><circle cx="12" cy="7" r="5" fill="#222"/><line x1="12" y1="12" x2="12" y2="22" stroke="#222" stroke-width="2"/><line x1="12" y1="15" x2="5" y2="19" stroke="#222" stroke-width="2"/><line x1="12" y1="15" x2="19" y2="19" stroke="#222" stroke-width="2"/><line x1="12" y1="22" x2="7" y2="32" stroke="#222" stroke-width="2"/><line x1="12" y1="22" x2="17" y2="32" stroke="#222" stroke-width="2"/></svg>`;
+            }
 
-    // ----- 游走 -----
-    function getDistance(i1, i2) {
-        const a = charList[i1], b = charList[i2];
-        if (!a || !b) return Infinity;
-        return Math.hypot(a.x - b.x, a.y - b.y);
-    }
-    function startWander() {
-        stopWander();
-        rebuildPersonDom();
-        wanderTimer = setInterval(function() {
-            if (!document.getElementById("autoWanderToggle").checked) return;
-            charList.forEach((ch, idx) => {
-                let groupMembers = null;
-                for (let g of bondGroups) {
-                    if (g.members.includes(idx)) { groupMembers = g.members.filter(m => m !== idx); break; }
+            // ----- 数据持久化 -----
+            function saveAllData() {
+                safeSet(STORAGE_KEY, { charList, trackTargetIndex, bondGroups });
+                safeSet(STORY_KEY, { storyEvents, visitedEvents });
+                const sessions = {};
+                for (let idx in chatSessions) {
+                    const s = chatSessions[idx];
+                    sessions[idx] = { html: s.html, eventId: s.eventId, history: s.history || [] };
                 }
-                if (groupMembers && groupMembers.length && Math.random() < 0.65) {
-                    let sumX = 0, sumY = 0, cnt = 0;
-                    groupMembers.forEach(m => {
-                        if (charList[m]) { sumX += charList[m].x; sumY += charList[m].y; cnt++; }
+                safeSet(SESSION_KEY, sessions);
+            }
+
+            function loadAllData() {
+                const main = safeGet(STORAGE_KEY, null);
+                if (main) {
+                    charList = main.charList || [];
+                    trackTargetIndex = main.trackTargetIndex ?? -1;
+                    bondGroups = main.bondGroups || [];
+                }
+                const story = safeGet(STORY_KEY, null);
+                if (story) {
+                    storyEvents = story.storyEvents || [];
+                    visitedEvents = story.visitedEvents || {};
+                }
+                const sessions = safeGet(SESSION_KEY, null);
+                if (sessions) {
+                    chatSessions = sessions;
+                }
+            }
+
+            // ----- 地图缩放 -----
+            let resizeTimer = null;
+
+            function resizeMapScale() {
+                try {
+                    if (!parchmentWrap) return;
+                    const mapW = 900,
+                        mapH = 620;
+                    const parent = parchmentWrap.parentElement;
+                    const availW = parent.clientWidth - 8;
+                    const availH = parent.clientHeight - 8 - 40;
+                    if (availW <= 0 || availH <= 0) return;
+                    let scaleX = availW / mapW;
+                    let scaleY = availH / mapH;
+                    let scale = Math.min(scaleX, scaleY, 1);
+                    if (scale < 0.5) scale = 0.5;
+
+                    mapContent.style.transform = `scale(${scale})`;
+                    mapContent.style.transformOrigin = "top left";
+                    parchmentWrap.style.width = (mapW * scale) + "px";
+                    parchmentWrap.style.height = (mapH * scale) + "px";
+                    parchmentWrap.style.margin = "0 auto";
+
+                    const baseFont = 11;
+                    const newFont = Math.max(7, baseFont * scale);
+                    document.querySelectorAll('.building-label').forEach(el => el.style.fontSize = newFont + 'px');
+                    document.querySelectorAll('.person-label').forEach(el => el.style.fontSize = newFont + 'px');
+                    const markSize = Math.max(16, 24 * scale);
+                    document.querySelectorAll('.person-mark').forEach(el => {
+                        el.style.width = markSize + 'px';
+                        el.style.height = (markSize * 34 / 24) + 'px';
                     });
-                    if (cnt > 0) {
-                        ch.targetX = sumX / cnt + (Math.random() - 0.5) * 140;
-                        ch.targetY = sumY / cnt + (Math.random() - 0.5) * 140;
-                    }
+                    // 气泡位置由updateBubble控制，不需要在这里调整
+                } catch (e) { console.warn("resizeMapScale error:", e); }
+            }
+
+            function debouncedResize() {
+                if (resizeTimer) clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(resizeMapScale, 150);
+            }
+
+            // ----- 咒语逻辑 -----
+            function handleSpellInput() {
+                const val = document.getElementById("spellInput").value.trim();
+                if (val.includes("我庄严宣誓我不干好事") || val.toLowerCase().includes("i solemnly swear")) {
+                    mapContent.classList.add("active");
+                    startWander();
                 }
-                const dx = ch.targetX - ch.x, dy = ch.targetY - ch.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < 14) {
-                    ch.targetX = Math.random() * 780 + 80;
-                    ch.targetY = Math.random() * 540 + 60;
-                } else {
-                    const spd = 0.7;
-                    ch.x += (dx / dist) * spd;
-                    ch.y += (dy / dist) * spd;
-                }
-                ch.x = Math.max(30, Math.min(870, ch.x));
-                ch.y = Math.max(30, Math.min(560, ch.y));
-                const now = Date.now();
-                if (idx === trackTargetIndex && now - lastPosUpdateTs > 420) {
-                    const lp = lastCharPos[idx];
-                    if (!lp || Math.hypot(ch.x - lp.x, ch.y - lp.y) > 2.8) {
-                        trackPoints.push({ x: ch.x, y: ch.y });
-                        if (trackPoints.length > 120) trackPoints.shift();
-                        lastCharPos[idx] = { x: ch.x, y: ch.y };
-                        lastPosUpdateTs = now;
-                        updateTrackLine();
-                    }
-                }
-            });
-            updatePersonPositionOnly();
-        }, 180);
-    }
-    function stopWander() {
-        if (wanderTimer) { clearInterval(wanderTimer); wanderTimer = null; }
-    }
+            }
 
-    // ----- 会话管理 -----
-    function saveCurrentSession() {
-        if (currentCharIndex === -1) return;
-        chatSessions[currentCharIndex] = {
-            html: chatContent.innerHTML,
-            eventId: currentEventId,
-            history: chatHistory.slice()
-        };
-        saveAllData();
-    }
-
-    // ----- 渲染事件 -----
-    function renderEvent(event) {
-        const cont = chatContent;
-        const oldOptions = cont.querySelector('.event-options');
-        if (oldOptions) oldOptions.remove();
-
-        if (event.lines && event.lines.length) {
-            event.lines.forEach(line => {
-                const div = document.createElement('div');
-                div.className = 'msg-char';
-                div.innerHTML = `<div class="msg-bubble-char">${line}</div>`;
-                cont.appendChild(div);
-            });
-        }
-
-        if (event.options && event.options.length) {
-            const optionsDiv = document.createElement('div');
-            optionsDiv.className = 'event-options';
-            event.options.forEach((opt) => {
-                const btn = document.createElement('button');
-                btn.className = 'btn';
-                btn.textContent = opt.text;
-                btn.style.cssText = 'text-align:left;width:100%;justify-content:flex-start;';
-                btn.addEventListener('click', function() {
-                    if (opt.reply) {
-                        const replyDiv = document.createElement('div');
-                        replyDiv.className = 'msg-char';
-                        replyDiv.innerHTML = `<div class="msg-bubble-char">${opt.reply}</div>`;
-                        cont.appendChild(replyDiv);
-                    }
-                    if (opt.nextEvent) {
-                        const nextEv = storyEvents.find(e => e.id === opt.nextEvent);
-                        if (nextEv) {
-                            optionsDiv.remove();
-                            currentEventId = nextEv.id;
-                            visitedEvents[nextEv.id] = true;
-                            renderEvent(nextEv);
-                        } else {
-                            optionsDiv.remove();
-                            const endDiv = document.createElement('div');
-                            endDiv.className = 'msg-char';
-                            endDiv.innerHTML = `<div class="msg-bubble-char">【剧情结束】</div>`;
-                            cont.appendChild(endDiv);
-                            currentEventId = null;
-                        }
-                    } else {
-                        optionsDiv.remove();
-                        const endDiv = document.createElement('div');
-                        endDiv.className = 'msg-char';
-                        endDiv.innerHTML = `<div class="msg-bubble-char">【剧情结束】</div>`;
-                        cont.appendChild(endDiv);
-                        currentEventId = null;
-                    }
-                    cont.scrollTop = cont.scrollHeight;
+            function finishUse() {
+                mapContent.classList.remove("active");
+                personMarkContainer.innerHTML = "";
+                personDomList = [];
+                trackPoints = [];
+                trackPathEl.setAttribute("d", "");
+                trackPathEl.classList.remove("visible");
+                stopWander();
+                hideBubble();
+                if (chatOverlay.classList.contains('show')) {
                     saveCurrentSession();
-                });
-                // 平板触摸增强
-                btn.addEventListener('touchstart', function(e) {
-                    // 仅用于触发，不重复执行
-                }, { passive: true });
-                optionsDiv.appendChild(btn);
-            });
-            cont.appendChild(optionsDiv);
-        } else {
-            const endDiv = document.createElement('div');
-            endDiv.className = 'msg-char';
-            endDiv.innerHTML = `<div class="msg-bubble-char">【剧情结束】</div>`;
-            cont.appendChild(endDiv);
-            currentEventId = null;
-        }
-        cont.scrollTop = cont.scrollHeight;
-        saveCurrentSession();
-    }
-
-    // ----- 聊天 -----
-    function openChat(idx) {
-        if (chatOverlay.classList.contains('show') && currentCharIndex === idx) {
-            chatOverlay.classList.add('show');
-            return;
-        }
-        if (currentCharIndex !== -1 && chatOverlay.classList.contains('show')) {
-            saveCurrentSession();
-        }
-        currentCharIndex = idx;
-        const c = charList[idx];
-        if (!c) return;
-
-        chatCharName.innerText = c.name;
-        chatCharStatus.innerText = `状态：${c.status}`;
-        chatSprite.src = c.sprite || "";
-        chatBg.style.backgroundImage = c.bg ? `url(${c.bg})` : "";
-        document.getElementById("apiKeyInput").value = llmConfig.apiKey || "";
-        document.getElementById("apiBaseUrlInput").value = llmConfig.baseUrl || "";
-        document.getElementById("apiModelInput").value = llmConfig.model || "";
-
-        if (chatSessions[idx]) {
-            const session = chatSessions[idx];
-            chatContent.innerHTML = session.html;
-            chatHistory = session.history || [];
-            currentEventId = session.eventId || null;
-            chatContent.scrollTop = chatContent.scrollHeight;
-            chatOverlay.classList.add('show');
-            setTimeout(() => chatSprite.classList.add('show'), 80);
-            return;
-        }
-
-        chatContent.innerHTML = "";
-        chatHistory = [];
-        currentEventId = null;
-
-        let matchedEvent = null;
-        for (let ev of storyEvents) {
-            if (ev.triggerCharIndex === idx || ev.triggerCharIndex === -1) {
-                matchedEvent = ev;
-                break;
-            }
-        }
-
-        if (matchedEvent) {
-            currentEventId = matchedEvent.id;
-            visitedEvents[matchedEvent.id] = true;
-            renderEvent(matchedEvent);
-        } else {
-            let hitGroup = null;
-            for (let g of bondGroups) {
-                if (g.members.includes(idx)) {
-                    const others = g.members.filter(m => m !== idx);
-                    let allNear = true;
-                    for (let m of others) { if (getDistance(idx, m) > 110) { allNear = false; break; } }
-                    if (allNear && g.dialogues && g.dialogues.length) { hitGroup = g; break; }
+                    chatOverlay.classList.remove('show');
                 }
             }
-            if (hitGroup) {
-                const dialArr = hitGroup.dialogues[Math.floor(Math.random() * hitGroup.dialogues.length)];
-                if (Array.isArray(dialArr)) {
-                    dialArr.forEach(line => {
+
+            function toggleVoiceSpell() {
+                if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+                    alert("浏览器不支持语音");
+                    return;
+                }
+                const btn = document.getElementById("voiceBtn");
+                if (voiceOn) { voiceOn = false;
+                    btn.classList.remove("recording"); return; }
+                voiceOn = true;
+                btn.classList.add("recording");
+                const rec = new(window.SpeechRecognition || window.webkitSpeechRecognition)();
+                rec.lang = "zh-CN";
+                rec.onresult = function(e) {
+                    const text = e.results[0][0].transcript;
+                    if (text.includes("我庄严宣誓我不干好事")) { mapContent.classList.add("active");
+                        startWander(); }
+                    voiceOn = false;
+                    btn.classList.remove("recording");
+                };
+                rec.onerror = function() { voiceOn = false;
+                    btn.classList.remove("recording"); };
+                rec.start();
+            }
+
+            // ----- 设置面板 -----
+            function openSetting() {
+                settingPanel.classList.add("open");
+                refreshCharSelects();
+                refreshTrackSelect();
+                renderCharManageList();
+                renderBondGroupList();
+                document.getElementById("storyStatus").innerText = storyEvents.length ? `已导入 ${storyEvents.length} 个事件` :
+                    "未导入";
+            }
+
+            function closeSetting() { settingPanel.classList.remove("open"); }
+
+            function saveAndExitSetting() {
+                const idx = Number(document.getElementById("charQuoteSelect").value);
+                if (!isNaN(idx) && charList[idx]) {
+                    charList[idx].quotes = document.getElementById("charQuoteTextarea").value.split("\n").filter(s => s.trim());
+                }
+                saveAllData();
+                rebuildPersonDom();
+                closeSetting();
+                alert("已保存");
+            }
+
+            function refreshTrackSelect() {
+                const sel = document.getElementById("trackTargetSelect");
+                sel.innerHTML = `<option value="-1">关闭追踪</option>`;
+                charList.forEach((c, i) => { sel.innerHTML += `<option value="${i}">${c.name}</option>`; });
+                sel.value = trackTargetIndex;
+            }
+
+            function changeTrackTarget() {
+                trackTargetIndex = Number(document.getElementById("trackTargetSelect").value);
+                trackPoints = [];
+                rebuildPersonDom();
+                updateTrackLine();
+            }
+
+            function refreshCharSelects() {
+                const ids = ['charQuoteSelect', 'imageCharSelect', 'statusEditCharSelect'];
+                ids.forEach(id => {
+                    const sel = document.getElementById(id);
+                    if (!sel) return;
+                    const current = sel.value;
+                    sel.innerHTML = `<option value="">${id==='statusEditCharSelect'?'请选择角色':'选择角色'}</option>`;
+                    charList.forEach((c, i) => { sel.innerHTML += `<option value="${i}">${c.name}</option>`; });
+                    sel.value = current;
+                });
+            }
+
+            function renderCharManageList() {
+                const wrap = document.getElementById("charManageList");
+                wrap.innerHTML = "";
+                charList.forEach((c, i) => {
+                    wrap.innerHTML += `
+                <div class="char-row">
+                  <span class="char-name">${c.name}</span>
+                  <button class="btn" onclick="window.editCharName(${i})">改名</button>
+                  <button class="btn" onclick="window.delChar(${i})">删除</button>
+                </div>`;
+                });
+            }
+
+            window.editCharName = function(idx) {
+                const newName = prompt("修改名字", charList[idx].name);
+                if (!newName) return;
+                charList[idx].name = newName;
+                refreshCharSelects();
+                refreshTrackSelect();
+                renderCharManageList();
+                rebuildPersonDom();
+                saveAllData();
+            };
+
+            window.delChar = function(idx) {
+                if (!confirm(`删除${charList[idx].name}？`)) return;
+                charList.splice(idx, 1);
+                if (trackTargetIndex === idx) trackTargetIndex = -1;
+                bondGroups.forEach(g => {
+                    g.members = g.members.filter(m => m !== idx).map(m => m > idx ? m - 1 : m);
+                });
+                delete chatSessions[idx];
+                refreshCharSelects();
+                refreshTrackSelect();
+                renderCharManageList();
+                renderBondGroupList();
+                rebuildPersonDom();
+                saveAllData();
+            };
+
+            function loadCharQuotes() {
+                const idx = Number(document.getElementById("charQuoteSelect").value);
+                if (!isNaN(idx) && charList[idx]) {
+                    document.getElementById("charQuoteTextarea").value = charList[idx].quotes.join("\n");
+                }
+            }
+
+            function saveCharStatus() {
+                const idx = Number(document.getElementById("statusEditCharSelect").value);
+                if (isNaN(idx) || !charList[idx]) { alert("请先选择角色"); return; }
+                const sel = document.getElementById("statusSelect").value;
+                const custom = document.getElementById("customStatusInput").value.trim();
+                charList[idx].status = custom || sel;
+                alert(`已保存${charList[idx].name}状态`);
+                saveAllData();
+            }
+
+            function renderBondGroupList() {
+                const wrap = document.getElementById("groupListWrap");
+                wrap.innerHTML = "";
+                bondGroups.forEach((g, gIdx) => {
+                    let html = `<div class="group-item">
+                  <strong>${g.name}</strong> (索引：${g.members.join(",")||"无"})
+                  <input class="set-input" id="groupMemInput_${gIdx}" value="${g.members.join(",")}" placeholder="角色索引">
+                  <button class="btn" onclick="window.saveGroupMember(${gIdx})">保存</button>
+                  <button class="btn" onclick="window.deleteBondGroup(${gIdx})">删除</button>
+                  ${(g.dialogues&&g.dialogues.length)?`<div>已加载${g.dialogues.length}组对话</div>`:''}
+                </div>`;
+                    wrap.innerHTML += html;
+                });
+            }
+
+            window.saveGroupMember = function(gIdx) {
+                const dom = document.getElementById("groupMemInput_" + gIdx);
+                const arr = dom.value.split(",").map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n >= 0 && n < charList
+                .length);
+                bondGroups[gIdx].members = arr;
+                renderBondGroupList();
+                saveAllData();
+                alert("组员已保存");
+            };
+
+            window.deleteBondGroup = function(gIdx) {
+                if (!confirm("删除该分组？")) return;
+                bondGroups.splice(gIdx, 1);
+                renderBondGroupList();
+                saveAllData();
+            };
+
+            function addBondGroup() {
+                const name = prompt("分组名称");
+                if (!name) return;
+                bondGroups.push({ name, members: [], dialogues: [] });
+                renderBondGroupList();
+                saveAllData();
+            }
+
+            function addCharacter() {
+                const name = prompt("角色名字");
+                if (!name) return;
+                charList.push({
+                    name,
+                    status: "行走中",
+                    quotes: [],
+                    sprite: "",
+                    bg: "",
+                    x: Math.random() * 780 + 80,
+                    y: Math.random() * 540 + 60,
+                    targetX: Math.random() * 780 + 80,
+                    targetY: Math.random() * 540 + 60
+                });
+                refreshCharSelects();
+                refreshTrackSelect();
+                renderCharManageList();
+                rebuildPersonDom();
+                saveAllData();
+            }
+
+            // ----- 人物渲染 -----
+            function rebuildPersonDom() {
+                personMarkContainer.innerHTML = "";
+                personDomList = [];
+                charList.forEach((ch, idx) => {
+                    const div = document.createElement("div");
+                    div.className = "person-mark" + (idx === trackTargetIndex ? " track-target" : "");
+                    div.dataset.idx = idx;
+                    div.style.left = ch.x + "px";
+                    div.style.top = ch.y + "px";
+                    div.innerHTML = getPersonSvg() + `<div class="person-label">${ch.name}</div>`;
+                    // 点击人物不再触发对话，由气泡接管
+                    // 但保留点击事件用于单人模式（非铁三角）
+                    div.addEventListener("click", function(e) {
+                        e.stopPropagation();
+                        const i = Number(this.dataset.idx);
+                        if (!isNaN(i)) {
+                            // 如果是铁三角之一，并且气泡正在显示，则打开三人对话
+                            if (BUBBLE_GROUP_INDICES.includes(i) && bubbleShown) {
+                                openGroupChat();
+                                return;
+                            }
+                            // 否则打开单人聊天
+                            openChat(i);
+                        }
+                    });
+                    personMarkContainer.appendChild(div);
+                    personDomList.push(div);
+                });
+                resizeMapScale();
+                // 重建后更新气泡
+                setTimeout(updateBubble, 100);
+            }
+
+            function updatePersonPositionOnly() {
+                charList.forEach((ch, idx) => {
+                    const dom = personDomList[idx];
+                    if (!dom) return;
+                    dom.style.left = ch.x + "px";
+                    dom.style.top = ch.y + "px";
+                    dom.className = "person-mark" + (idx === trackTargetIndex ? " track-target" : "");
+                });
+                // 位置更新后检测气泡
+                updateBubble();
+            }
+
+            // ----- 追踪线 -----
+            function updateTrackLine() {
+                const showTrack = document.getElementById("showTrackToggle").checked;
+                trackPathEl.setAttribute("d", "");
+                trackPathEl.classList.remove("visible");
+                if (trackTargetIndex === -1 || !showTrack || trackPoints.length < 2) return;
+                let d = `M${trackPoints[0].x} ${trackPoints[0].y}`;
+                for (let i = 1; i < trackPoints.length; i++) d += ` L${trackPoints[i].x} ${trackPoints[i].y}`;
+                trackPathEl.setAttribute("d", d);
+                trackPathEl.classList.add("visible");
+            }
+
+            // ----- 游走 -----
+            function getDistance(i1, i2) {
+                const a = charList[i1],
+                    b = charList[i2];
+                if (!a || !b) return Infinity;
+                return Math.hypot(a.x - b.x, a.y - b.y);
+            }
+
+            function startWander() {
+                stopWander();
+                rebuildPersonDom();
+                wanderTimer = setInterval(function() {
+                    if (!document.getElementById("autoWanderToggle").checked) return;
+                    charList.forEach((ch, idx) => {
+                        let groupMembers = null;
+                        for (let g of bondGroups) {
+                            if (g.members.includes(idx)) { groupMembers = g.members.filter(m => m !== idx); break; }
+                        }
+                        if (groupMembers && groupMembers.length && Math.random() < 0.65) {
+                            let sumX = 0,
+                                sumY = 0,
+                                cnt = 0;
+                            groupMembers.forEach(m => {
+                                if (charList[m]) { sumX += charList[m].x;
+                                    sumY += charList[m].y;
+                                    cnt++; }
+                            });
+                            if (cnt > 0) {
+                                ch.targetX = sumX / cnt + (Math.random() - 0.5) * 140;
+                                ch.targetY = sumY / cnt + (Math.random() - 0.5) * 140;
+                            }
+                        }
+                        const dx = ch.targetX - ch.x,
+                            dy = ch.targetY - ch.y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 14) {
+                            ch.targetX = Math.random() * 780 + 80;
+                            ch.targetY = Math.random() * 540 + 60;
+                        } else {
+                            const spd = 0.7;
+                            ch.x += (dx / dist) * spd;
+                            ch.y += (dy / dist) * spd;
+                        }
+                        ch.x = Math.max(30, Math.min(870, ch.x));
+                        ch.y = Math.max(30, Math.min(560, ch.y));
+
+                        const now = Date.now();
+                        if (idx === trackTargetIndex && now - lastPosUpdateTs > 420) {
+                            const lp = lastCharPos[idx];
+                            if (!lp || Math.hypot(ch.x - lp.x, ch.y - lp.y) > 2.8) {
+                                trackPoints.push({ x: ch.x, y: ch.y });
+                                if (trackPoints.length > 120) trackPoints.shift();
+                                lastCharPos[idx] = { x: ch.x, y: ch.y };
+                                lastPosUpdateTs = now;
+                                updateTrackLine();
+                            }
+                        }
+                    });
+                    updatePersonPositionOnly();
+                }, 180);
+            }
+
+            function stopWander() {
+                if (wanderTimer) { clearInterval(wanderTimer);
+                    wanderTimer = null; }
+            }
+
+            // ========== 核心：聊天气泡逻辑 ==========
+
+            function getGroupCenter(indices) {
+                let sumX = 0,
+                    sumY = 0,
+                    count = 0;
+                for (let i of indices) {
+                    if (charList[i]) {
+                        sumX += charList[i].x;
+                        sumY += charList[i].y;
+                        count++;
+                    }
+                }
+                if (count === 0) return null;
+                return { x: sumX / count, y: sumY / count };
+            }
+
+            function checkGroupNear(indices, threshold) {
+                if (indices.length < 2) return false;
+                for (let i = 0; i < indices.length; i++) {
+                    for (let j = i + 1; j < indices.length; j++) {
+                        if (!charList[indices[i]] || !charList[indices[j]]) return false;
+                        if (getDistance(indices[i], indices[j]) > threshold) return false;
+                    }
+                }
+                return true;
+            }
+
+            function getGroupDialogue(indices) {
+                // 查找包含所有成员的分组
+                for (let g of bondGroups) {
+                    if (indices.every(idx => g.members.includes(idx))) {
+                        if (g.dialogues && g.dialogues.length > 0) {
+                            return g.dialogues[Math.floor(Math.random() * g.dialogues.length)];
+                        }
+                        return null;
+                    }
+                }
+                return null;
+            }
+
+            function showBubble(centerX, centerY) {
+                if (bubbleElement) {
+                    bubbleElement.style.left = centerX + 'px';
+                    bubbleElement.style.top = centerY + 'px';
+                    bubbleElement.classList.remove('hidden');
+                    bubbleShown = true;
+                    return;
+                }
+                bubbleElement = document.createElement('div');
+                bubbleElement.className = 'chat-bubble';
+                bubbleElement.textContent = '💬 铁三角在聊天';
+                bubbleElement.style.left = centerX + 'px';
+                bubbleElement.style.top = centerY + 'px';
+                bubbleElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    openGroupChat();
+                });
+                // 移动端触摸
+                bubbleElement.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    openGroupChat();
+                }, { passive: false });
+                bubbleContainer.appendChild(bubbleElement);
+                bubbleShown = true;
+            }
+
+            function hideBubble() {
+                if (bubbleElement) {
+                    bubbleElement.classList.add('hidden');
+                    bubbleShown = false;
+                }
+            }
+
+            function updateBubble() {
+                // 只有在地图激活且有角色时才检测
+                if (!mapContent.classList.contains('active') || charList.length < 3) {
+                    hideBubble();
+                    return;
+                }
+
+                // 检查铁三角是否靠近
+                const indices = BUBBLE_GROUP_INDICES;
+                if (checkGroupNear(indices, BUBBLE_TRIGGER_DIST)) {
+                    const center = getGroupCenter(indices);
+                    if (center) {
+                        // 检查是否有对应的分组对话
+                        const dialogue = getGroupDialogue(indices);
+                        if (dialogue) {
+                            showBubble(center.x, center.y);
+                            return;
+                        }
+                    }
+                }
+                hideBubble();
+            }
+
+            // 打开三人对话
+            function openGroupChat() {
+                // 使用铁三角的第一个角色作为“名义”角色，但显示三人对话
+                const groupIdx = BUBBLE_GROUP_INDICES[0];
+                const c = charList[groupIdx];
+                if (!c) return;
+
+                // 查找分组对话
+                const dialogue = getGroupDialogue(BUBBLE_GROUP_INDICES);
+                if (!dialogue) {
+                    alert('没有找到铁三角的对话内容，请先导入同组对话 JSON');
+                    return;
+                }
+
+                // 构建聊天界面
+                currentCharIndex = groupIdx;
+                chatCharName.innerText = '铁三角';
+                chatCharStatus.innerText = '状态：聊天中';
+                chatContent.innerHTML = '';
+                chatHistory = [];
+
+                // 显示立绘（用第一个角色的）
+                chatSprite.src = c.sprite || '';
+                chatBg.style.backgroundImage = c.bg ? `url(${c.bg})` : '';
+
+                // 显示对话
+                if (Array.isArray(dialogue)) {
+                    dialogue.forEach(line => {
                         const div = document.createElement('div');
                         div.className = 'msg-char';
                         div.innerHTML = `<div class="msg-bubble-char">${line}</div>`;
                         chatContent.appendChild(div);
                     });
                 }
-            } else if (c.quotes && c.quotes.length) {
-                const randText = c.quotes[Math.floor(Math.random() * c.quotes.length)];
-                const div = document.createElement('div');
-                div.className = 'msg-char';
-                div.innerHTML = `<div class="msg-bubble-char">${randText}</div>`;
-                chatContent.appendChild(div);
-            } else {
-                const div = document.createElement('div');
-                div.className = 'msg-char';
-                div.innerHTML = `<div class="msg-bubble-char">【暂无台词】</div>`;
-                chatContent.appendChild(div);
+
+                chatContent.scrollTop = chatContent.scrollHeight;
+                chatOverlay.classList.add('show');
+                setTimeout(() => chatSprite.classList.add('show'), 80);
+                saveCurrentSession();
             }
-            chatContent.scrollTop = chatContent.scrollHeight;
-        }
-        chatOverlay.classList.add('show');
-        setTimeout(() => chatSprite.classList.add('show'), 80);
-        saveCurrentSession();
-    }
 
-    function closeChat() {
-        if (currentCharIndex !== -1) { saveCurrentSession(); }
-        chatSprite.classList.remove('show');
-        chatOverlay.classList.remove('show');
-    }
+            // ----- 保存当前会话 -----
+            function saveCurrentSession() {
+                if (currentCharIndex === -1) return;
+                const html = chatContent.innerHTML;
+                chatSessions[currentCharIndex] = {
+                    html: html,
+                    eventId: currentEventId,
+                    history: chatHistory.slice()
+                };
+                saveAllData();
+            }
 
-    function sendChatMsg() {
-        const inp = document.getElementById("chatInput");
-        const txt = inp.value.trim();
-        if (!txt) return;
-        const cont = chatContent;
-        const selfDiv = document.createElement('div');
-        selfDiv.className = 'msg-self';
-        selfDiv.innerHTML = `<div class="msg-bubble-self">${txt}</div>`;
-        cont.appendChild(selfDiv);
-        inp.value = "";
-        cont.scrollTop = cont.scrollHeight;
+            // ----- 渲染事件（文游）-----
+            function renderEvent(event) {
+                const cont = chatContent;
+                const oldOptions = cont.querySelector('.event-options');
+                if (oldOptions) oldOptions.remove();
 
-        const mode = document.querySelector('input[name="chatMode"]:checked').value;
-        const c = charList[currentCharIndex];
-        if (!c) return;
+                if (event.lines && event.lines.length) {
+                    event.lines.forEach(line => {
+                        const div = document.createElement('div');
+                        div.className = 'msg-char';
+                        div.innerHTML = `<div class="msg-bubble-char">${line}</div>`;
+                        cont.appendChild(div);
+                    });
+                }
 
-        if (currentEventId) {
-            const warnDiv = document.createElement('div');
-            warnDiv.className = 'msg-char';
-            warnDiv.innerHTML = `<div class="msg-bubble-char">【剧情中请选择选项】</div>`;
-            cont.appendChild(warnDiv);
-            cont.scrollTop = cont.scrollHeight;
-            saveCurrentSession();
-            return;
-        }
-
-        if (mode === "local") {
-            if (c.quotes && c.quotes.length) {
-                const reply = c.quotes[Math.floor(Math.random() * c.quotes.length)];
-                setTimeout(() => {
-                    const replyDiv = document.createElement('div');
-                    replyDiv.className = 'msg-char';
-                    replyDiv.innerHTML = `<div class="msg-bubble-char">${reply}</div>`;
-                    cont.appendChild(replyDiv);
-                    cont.scrollTop = cont.scrollHeight;
-                    saveCurrentSession();
-                }, 400);
-            } else {
-                const replyDiv = document.createElement('div');
-                replyDiv.className = 'msg-char';
-                replyDiv.innerHTML = `<div class="msg-bubble-char">【字卡为空】</div>`;
-                cont.appendChild(replyDiv);
+                if (event.options && event.options.length) {
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.className = 'event-options';
+                    event.options.forEach((opt) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'btn';
+                        btn.innerText = opt.text;
+                        btn.style.cssText = 'text-align:left;width:100%;justify-content:flex-start;';
+                        btn.addEventListener('click', function() {
+                            if (opt.reply) {
+                                const replyDiv = document.createElement('div');
+                                replyDiv.className = 'msg-char';
+                                replyDiv.innerHTML = `<div class="msg-bubble-char">${opt.reply}</div>`;
+                                cont.appendChild(replyDiv);
+                            }
+                            if (opt.nextEvent) {
+                                const nextEv = storyEvents.find(e => e.id === opt.nextEvent);
+                                if (nextEv) {
+                                    optionsDiv.remove();
+                                    currentEventId = nextEv.id;
+                                    visitedEvents[nextEv.id] = true;
+                                    renderEvent(nextEv);
+                                } else {
+                                    optionsDiv.remove();
+                                    const endDiv = document.createElement('div');
+                                    endDiv.className = 'msg-char';
+                                    endDiv.innerHTML = `<div class="msg-bubble-char">【剧情结束】</div>`;
+                                    cont.appendChild(endDiv);
+                                    currentEventId = null;
+                                }
+                            } else {
+                                optionsDiv.remove();
+                                const endDiv = document.createElement('div');
+                                endDiv.className = 'msg-char';
+                                endDiv.innerHTML = `<div class="msg-bubble-char">【剧情结束】</div>`;
+                                cont.appendChild(endDiv);
+                                currentEventId = null;
+                            }
+                            cont.scrollTop = cont.scrollHeight;
+                            saveCurrentSession();
+                        });
+                        optionsDiv.appendChild(btn);
+                    });
+                    cont.appendChild(optionsDiv);
+                } else {
+                    const endDiv = document.createElement('div');
+                    endDiv.className = 'msg-char';
+                    endDiv.innerHTML = `<div class="msg-bubble-char">【剧情结束】</div>`;
+                    cont.appendChild(endDiv);
+                    currentEventId = null;
+                }
                 cont.scrollTop = cont.scrollHeight;
                 saveCurrentSession();
             }
-        } else {
-            const replyDiv = document.createElement('div');
-            replyDiv.className = 'msg-char';
-            replyDiv.innerHTML = `<div class="msg-bubble-char">【AI模式需配置API】</div>`;
-            cont.appendChild(replyDiv);
-            cont.scrollTop = cont.scrollHeight;
-            saveCurrentSession();
-        }
-    }
 
-    function collectCurrentMsg() { alert("已收集（演示）"); }
+            // ----- 单人聊天（普通模式）-----
+            function openChat(idx) {
+                if (chatOverlay.classList.contains('show') && currentCharIndex === idx) {
+                    chatOverlay.classList.add('show');
+                    return;
+                }
 
-    // ----- 卡片导入导出 -----
-    function exportCharCard() {
-        if (currentCharIndex < 0) return alert("请先打开一个角色");
-        const c = charList[currentCharIndex];
-        const blob = new Blob([JSON.stringify(c, null, 2)], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = c.name + "_card.json";
-        a.click();
-    }
-    function triggerImport() { importCharFile.click(); }
-    function handleImportFile(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            try {
-                const obj = JSON.parse(ev.target.result);
-                const newChar = {
-                    name: obj.name || "无名", status: obj.status || "行走中",
-                    quotes: Array.isArray(obj.quotes) ? obj.quotes : [],
-                    sprite: obj.sprite || "", bg: obj.bg || "",
-                    x: Math.random() * 780 + 80, y: Math.random() * 540 + 60,
-                    targetX: Math.random() * 780 + 80, targetY: Math.random() * 540 + 60
-                };
-                charList.push(newChar);
-                refreshCharSelects();
-                refreshTrackSelect();
-                renderCharManageList();
-                rebuildPersonDom();
-                saveAllData();
-                alert("导入成功");
-            } catch (err) { alert("格式错误"); }
-            importCharFile.value = "";
-        };
-        reader.readAsText(file);
-    }
-
-    // ----- 存档导入导出 -----
-    function exportFullSave() {
-        if (currentCharIndex !== -1 && chatOverlay.classList.contains('show')) { saveCurrentSession(); }
-        const data = { charList, trackTargetIndex, bondGroups, storyEvents, visitedEvents, chatSessions };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "full_save.json";
-        a.click();
-    }
-    function importFullSaveFile(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(ev) {
-            try {
-                const d = JSON.parse(ev.target.result);
-                charList = d.charList || [];
-                trackTargetIndex = d.trackTargetIndex ?? -1;
-                bondGroups = d.bondGroups || [];
-                storyEvents = d.storyEvents || [];
-                visitedEvents = d.visitedEvents || {};
-                chatSessions = d.chatSessions || {};
-                saveAllData();
-                refreshCharSelects();
-                refreshTrackSelect();
-                renderCharManageList();
-                renderBondGroupList();
-                rebuildPersonDom();
-                document.getElementById("storyStatus").innerText = storyEvents.length ? `已导入 ${storyEvents.length} 个事件` : "未导入";
                 if (currentCharIndex !== -1 && chatOverlay.classList.contains('show')) {
-                    if (chatSessions[currentCharIndex]) {
-                        const session = chatSessions[currentCharIndex];
-                        chatContent.innerHTML = session.html;
-                        chatHistory = session.history || [];
-                        currentEventId = session.eventId || null;
-                        chatContent.scrollTop = chatContent.scrollHeight;
+                    saveCurrentSession();
+                }
+
+                currentCharIndex = idx;
+                const c = charList[idx];
+                if (!c) return;
+
+                chatCharName.innerText = c.name;
+                chatCharStatus.innerText = `状态：${c.status}`;
+                chatSprite.src = c.sprite || '';
+                chatBg.style.backgroundImage = c.bg ? `url(${c.bg})` : '';
+                document.getElementById("apiKeyInput").value = llmConfig.apiKey || '';
+                document.getElementById("apiBaseUrlInput").value = llmConfig.baseUrl || '';
+                document.getElementById("apiModelInput").value = llmConfig.model || '';
+
+                if (chatSessions[idx]) {
+                    const session = chatSessions[idx];
+                    chatContent.innerHTML = session.html;
+                    chatHistory = session.history || [];
+                    currentEventId = session.eventId || null;
+                    chatContent.scrollTop = chatContent.scrollHeight;
+                    chatOverlay.classList.add('show');
+                    setTimeout(() => chatSprite.classList.add('show'), 80);
+                    return;
+                }
+
+                chatContent.innerHTML = '';
+                chatHistory = [];
+                currentEventId = null;
+
+                let matchedEvent = null;
+                for (let ev of storyEvents) {
+                    if (ev.triggerCharIndex === idx || ev.triggerCharIndex === -1) {
+                        matchedEvent = ev;
+                        break;
                     }
                 }
-                alert("导入成功");
-            } catch (err) { alert("解析失败"); }
-            fullSaveFile.value = "";
-        };
-        reader.readAsText(file);
-    }
 
-    // ----- 图片上传 -----
-    function setupImageUpload() {
-        const spriteUpload = document.getElementById("spriteUpload");
-        const bgUpload = document.getElementById("bgUpload");
-        const imgSel = document.getElementById("imageCharSelect");
+                if (matchedEvent) {
+                    currentEventId = matchedEvent.id;
+                    visitedEvents[matchedEvent.id] = true;
+                    renderEvent(matchedEvent);
+                } else {
+                    let hitGroup = null;
+                    for (let g of bondGroups) {
+                        if (g.members.includes(idx)) {
+                            const others = g.members.filter(m => m !== idx);
+                            let allNear = true;
+                            for (let m of others) { if (getDistance(idx, m) > 110) { allNear = false; break; } }
+                            if (allNear && g.dialogues && g.dialogues.length) { hitGroup = g; break; }
+                        }
+                    }
 
-        spriteUpload.addEventListener('change', function() {
-            const idx = Number(imgSel.value);
-            if (isNaN(idx) || !charList[idx]) { alert("请先选择角色"); return; }
-            const file = this.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                charList[idx].sprite = ev.target.result;
-                document.getElementById("spritePreview").innerHTML = `<img src="${ev.target.result}" style="max-height:60px;max-width:100%;">`;
-                saveAllData();
-                if (currentCharIndex === idx && chatOverlay.classList.contains('show')) {
-                    chatSprite.src = ev.target.result;
+                    if (hitGroup) {
+                        const dialArr = hitGroup.dialogues[Math.floor(Math.random() * hitGroup.dialogues.length)];
+                        if (Array.isArray(dialArr)) {
+                            dialArr.forEach(line => {
+                                const div = document.createElement('div');
+                                div.className = 'msg-char';
+                                div.innerHTML = `<div class="msg-bubble-char">${line}</div>`;
+                                chatContent.appendChild(div);
+                            });
+                        }
+                    } else if (c.quotes && c.quotes.length) {
+                        const randText = c.quotes[Math.floor(Math.random() * c.quotes.length)];
+                        const div = document.createElement('div');
+                        div.className = 'msg-char';
+                        div.innerHTML = `<div class="msg-bubble-char">${randText}</div>`;
+                        chatContent.appendChild(div);
+                    } else {
+                        const div = document.createElement('div');
+                        div.className = 'msg-char';
+                        div.innerHTML = `<div class="msg-bubble-char">【暂无台词】</div>`;
+                        chatContent.appendChild(div);
+                    }
+                    chatContent.scrollTop = chatContent.scrollHeight;
                 }
-            };
-            reader.readAsDataURL(file);
-        });
-        bgUpload.addEventListener('change', function() {
-            const idx = Number(imgSel.value);
-            if (isNaN(idx) || !charList[idx]) { alert("请先选择角色"); return; }
-            const file = this.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                charList[idx].bg = ev.target.result;
-                document.getElementById("bgPreview").innerHTML = `<img src="${ev.target.result}" style="max-height:60px;max-width:100%;">`;
-                saveAllData();
-                if (currentCharIndex === idx && chatOverlay.classList.contains('show')) {
-                    chatBg.style.backgroundImage = `url(${ev.target.result})`;
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-        imgSel.addEventListener('change', function() {
-            const idx = Number(this.value);
-            if (isNaN(idx) || !charList[idx]) { document.getElementById("spritePreview").innerHTML = "无"; document.getElementById("bgPreview").innerHTML = "无"; return; }
-            const c = charList[idx];
-            document.getElementById("spritePreview").innerHTML = c.sprite ? `<img src="${c.sprite}" style="max-height:60px;max-width:100%;">` : "无";
-            document.getElementById("bgPreview").innerHTML = c.bg ? `<img src="${c.bg}" style="max-height:60px;max-width:100%;">` : "无";
-        });
-    }
 
-    // ----- 分组对话导入 -----
-    function setupGroupDialogueImport() {
-        groupDialogueFile.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                try {
-                    const arr = JSON.parse(ev.target.result);
-                    if (!Array.isArray(arr)) throw new Error();
-                    arr.forEach(item => {
-                        const g = bondGroups.find(g => g.name === item.groupName);
-                        if (g) g.dialogues = item.dialogues || [];
-                    });
-                    saveAllData();
-                    renderBondGroupList();
-                    alert("导入成功");
-                } catch (err) { alert("格式错误"); }
-                groupDialogueFile.value = "";
-            };
-            reader.readAsText(file);
-        });
-        document.getElementById('groupDialogueBtn').addEventListener('click', function() {
-            groupDialogueFile.click();
-        });
-    }
-
-    // ----- 文游事件导入 -----
-    function setupStoryImport() {
-        storyFile.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                try {
-                    const data = JSON.parse(ev.target.result);
-                    if (!Array.isArray(data)) throw new Error("需要数组");
-                    storyEvents = data;
-                    visitedEvents = {};
-                    chatSessions = {};
-                    saveAllData();
-                    document.getElementById("storyStatus").innerText = `已导入 ${storyEvents.length} 个事件`;
-                    alert(`成功导入 ${storyEvents.length} 个事件`);
-                    if (chatOverlay.classList.contains('show')) { closeChat(); }
-                } catch (err) {
-                    alert("解析失败：" + err.message);
-                }
-                storyFile.value = "";
-            };
-            reader.readAsText(file);
-        });
-        document.getElementById('storyBtn').addEventListener('click', function() {
-            storyFile.click();
-        });
-    }
-
-    // ----- 绑定UI事件（统一使用addEventListener） -----
-    function bindUI() {
-        document.getElementById("spellBtn").addEventListener('click', handleSpellInput);
-        document.getElementById("spellInput").addEventListener('keydown', function(e) {
-            if (e.key === "Enter") { e.preventDefault(); handleSpellInput(); }
-        });
-        document.getElementById("voiceBtn").addEventListener('click', toggleVoiceSpell);
-        document.getElementById("finishBtn").addEventListener('click', finishUse);
-        document.getElementById("openSettingBtn").addEventListener('click', openSetting);
-        document.getElementById("setClose").addEventListener('click', closeSetting);
-        document.getElementById("cancelBtn").addEventListener('click', closeSetting);
-        document.getElementById("saveExitBtn").addEventListener('click', saveAndExitSetting);
-        document.getElementById("addCharBtn").addEventListener('click', addCharacter);
-        document.getElementById("addGroupBtn").addEventListener('click', addBondGroup);
-        document.getElementById("trackTargetSelect").addEventListener('change', changeTrackTarget);
-        document.getElementById("charQuoteSelect").addEventListener('change', loadCharQuotes);
-        document.getElementById("saveStatusBtn").addEventListener('click', saveCharStatus);
-        document.getElementById("chatCloseBtn").addEventListener('click', closeChat);
-        document.getElementById("chatSendBtn").addEventListener('click', sendChatMsg);
-        document.getElementById("chatInput").addEventListener('keydown', function(e) {
-            if (e.key === "Enter") { e.preventDefault(); sendChatMsg(); }
-        });
-        document.getElementById("exportBtn").addEventListener('click', exportCharCard);
-        document.getElementById("importBtn").addEventListener('click', triggerImport);
-        importCharFile.addEventListener('change', handleImportFile);
-        document.getElementById("exportAllSave").addEventListener('click', exportFullSave);
-        document.getElementById("importAllSave").addEventListener('click', function() { fullSaveFile.click(); });
-        fullSaveFile.addEventListener('change', importFullSaveFile);
-        document.getElementById("collectBtn").addEventListener('click', collectCurrentMsg);
-
-        document.querySelectorAll('input[name="chatMode"]').forEach(r => {
-            r.addEventListener('change', function() {
-                document.getElementById("apiKeyWrap").style.display = this.value === "api" ? "block" : "none";
-            });
-        });
-    }
-
-    // ----- 初始化 -----
-    function init() {
-        try {
-            loadAllData();
-            if (!charList.length) {
-                charList = [
-                    { name: "哈利", status: "闲逛", quotes: ["又是麻烦的一天。", "希望不要碰到斯内普。"], x: 220, y: 240, targetX: 320, targetY: 280, sprite: "", bg: "" },
-                    { name: "罗恩", status: "闲逛", quotes: ["肚子又饿了。", "希望晚餐有布丁。"], x: 245, y: 255, targetX: 340, targetY: 290, sprite: "", bg: "" },
-                    { name: "赫敏", status: "闲逛", quotes: ["作业还没有写完。", "你们又在偷懒。"], x: 270, y: 235, targetX: 360, targetY: 270, sprite: "", bg: "" },
-                    { name: "斯内普", status: "巡逻", quotes: ["格兰芬多又扣分了。", "魔药课不许走神。"], x: 385, y: 365, targetX: 385, targetY: 365, sprite: "", bg: "" },
-                    { name: "邓布利多", status: "休息中", quotes: ["勇敢一点。", "真相值得被看见。"], x: 230, y: 165, targetX: 230, targetY: 165, sprite: "", bg: "" }
-                ];
-                bondGroups = [{ name: "三人组", members: [0, 1, 2], dialogues: [] }];
-                saveAllData();
+                chatOverlay.classList.add('show');
+                setTimeout(() => chatSprite.classList.add('show'), 80);
+                saveCurrentSession();
             }
-            const llmSaved = safeGet(API_CFG_STORAGE, null);
-            if (llmSaved) llmConfig = llmSaved;
 
-            bindUI();
-            setupImageUpload();
-            setupGroupDialogueImport();
-            setupStoryImport();
+            function closeChat() {
+                if (currentCharIndex !== -1) {
+                    saveCurrentSession();
+                }
+                chatSprite.classList.remove('show');
+                chatOverlay.classList.remove('show');
+                // 恢复状态显示
+                if (currentCharIndex !== -1 && charList[currentCharIndex]) {
+                    chatCharStatus.innerText = `状态：${charList[currentCharIndex].status}`;
+                }
+            }
 
-            refreshCharSelects();
-            refreshTrackSelect();
-            renderCharManageList();
-            renderBondGroupList();
-            rebuildPersonDom();
-            document.getElementById("storyStatus").innerText = storyEvents.length ? `已导入 ${storyEvents.length} 个事件` : "未导入";
+            async function sendChatMsg() {
+                const inp = document.getElementById("chatInput");
+                const txt = inp.value.trim();
+                if (!txt) return;
+                const cont = chatContent;
+                const selfDiv = document.createElement('div');
+                selfDiv.className = 'msg-self';
+                selfDiv.innerHTML = `<div class="msg-bubble-self">${txt}</div>`;
+                cont.appendChild(selfDiv);
+                inp.value = "";
+                cont.scrollTop = cont.scrollHeight;
 
-            resizeMapScale();
-            window.addEventListener('resize', debouncedResize);
-            window.addEventListener('orientationchange', function() { setTimeout(debouncedResize, 300); });
+                const mode = document.querySelector('input[name="chatMode"]:checked').value;
+                const c = charList[currentCharIndex];
+                if (!c) return;
 
-            if (mapContent.classList.contains("active")) startWander();
+                if (currentEventId) {
+                    const warnDiv = document.createElement('div');
+                    warnDiv.className = 'msg-char';
+                    warnDiv.innerHTML = `<div class="msg-bubble-char">【剧情中请选择选项】</div>`;
+                    cont.appendChild(warnDiv);
+                    cont.scrollTop = cont.scrollHeight;
+                    saveCurrentSession();
+                    return;
+                }
 
-            console.log("✅ 活点地图启动成功（平板触摸优化版）");
-        } catch (e) {
-            console.error("初始化错误:", e);
-            alert("加载失败，请刷新页面");
-        }
-    }
+                if (mode === "local") {
+                    if (c.quotes && c.quotes.length) {
+                        const reply = c.quotes[Math.floor(Math.random() * c.quotes.length)];
+                        setTimeout(() => {
+                            const replyDiv = document.createElement('div');
+                            replyDiv.className = 'msg-char';
+                            replyDiv.innerHTML = `<div class="msg-bubble-char">${reply}</div>`;
+                            cont.appendChild(replyDiv);
+                            cont.scrollTop = cont.scrollHeight;
+                            saveCurrentSession();
+                        }, 400);
+                    } else {
+                        const replyDiv = document.createElement('div');
+                        replyDiv.className = 'msg-char';
+                        replyDiv.innerHTML = `<div class="msg-bubble-char">【字卡为空】</div>`;
+                        cont.appendChild(replyDiv);
+                        cont.scrollTop = cont.scrollHeight;
+                        saveCurrentSession();
+                    }
+                } else {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'msg-char';
+                    replyDiv.innerHTML = `<div class="msg-bubble-char">【AI模式需配置API】</div>`;
+                    cont.appendChild(replyDiv);
+                    cont.scrollTop = cont.scrollHeight;
+                    saveCurrentSession();
+                }
+            }
 
-    // 启动
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init);
-    } else {
-        init();
-    }
+            function collectCurrentMsg() { alert("已收集（演示）"); }
 
-    // 暴露全局
-    window.editCharName = window.editCharName;
-    window.delChar = window.delChar;
-    window.saveGroupMember = window.saveGroupMember;
-    window.deleteBondGroup = window.deleteBondGroup;
+            // ----- 卡片导入导出 -----
+            function exportCharCard() {
+                if (currentCharIndex < 0) return alert("请先打开一个角色");
+                const c = charList[currentCharIndex];
+                const blob = new Blob([JSON.stringify(c, null, 2)], { type: "application/json" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = c.name + "_card.json";
+                a.click();
+            }
 
-    window.addEventListener('beforeunload', function() {
-        if (currentCharIndex !== -1 && chatOverlay.classList.contains('show')) {
-            saveCurrentSession();
-        }
-        saveAllData();
-    });
+            function triggerImport() { importCharFile.click(); }
 
-})();
-</script>
+            function handleImportFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    try {
+                        const obj = JSON.parse(ev.target.result);
+                        const newChar = {
+                            name: obj.name || "无名",
+                            status: obj.status || "行走中",
+                            quotes: Array.isArray(obj.quotes) ? obj.quotes : [],
+                            sprite: obj.sprite || "",
+                            bg: obj.bg || "",
+                            x: Math.random() * 780 + 80,
+                            y: Math.random() * 540 + 60,
+                            targetX: Math.random() * 780 + 80,
+                            targetY: Math.random() * 540 + 60
+                        };
+                        charList.push(newChar);
+                        refreshCharSelects();
+                        refreshTrackSelect();
+                        renderCharManageList();
+                        rebuildPersonDom();
+                        saveAllData();
+                        alert("导入成功");
+                    } catch (err) { alert("格式错误"); }
+                    importCharFile.value = "";
+                };
+                reader.readAsText(file);
+            }
+
+            // ----- 存档导入导出 -----
+            function exportFullSave() {
+                if (currentCharIndex !== -1 && chatOverlay.classList.contains('show')) {
+                    saveCurrentSession();
+                }
+                const data = { charList, trackTargetIndex, bondGroups, storyEvents, visitedEvents, chatSessions };
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "full_save.json";
+                a.click();
+            }
+
+            function importFullSaveFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    try {
+                        const d = JSON.parse(ev.target.result);
+                        charList = d.charList || [];
+                        trackTargetIndex = d.trackTargetIndex ?? -1;
+                        bondGroups = d.bondGroups || [];
+                        storyEvents = d.storyEvents || [];
+                        visitedEvents = d.visitedEvents || {};
+                        chatSessions = d.chatSessions || {};
+                        saveAllData();
+                        refreshCharSelects();
+                        refreshTrackSelect();
+                        renderCharManageList();
+                        renderBondGroupList();
+                        rebuildPersonDom();
+                        document.getElementById("storyStatus").innerText = storyEvents.length ? `已导入 ${storyEvents.length} 个事件` :
+                            "未导入";
+                        if (currentCharIndex !== -1 && chatOverlay.classList.contains('show')) {
+                            if (chatSessions[currentCharIndex]) {
+                                const session = chatSessions[currentCharIndex];
+                                chatContent.innerHTML = session.html;
+                                chatHistory = session.history || [];
+                                currentEventId = session.eventId || null;
+                                chatContent.scrollTop = chatContent.scrollHeight;
+                            }
+                        }
+                        alert("导入成功");
+                    } catch (err) { alert("解析失败"); }
+                    fullSaveFile.value = "";
+                };
+                reader.readAsText(file);
+            }
+
+            // ----- 图片上传 -----
+            function setupImageUpload() {
+                const spriteUpload = document.getElementById("spriteUpload");
+                const bgUpload = document.getElementById("bgUpload");
+                const imgSel = document.getElementById("imageCharSelect");
+
+                spriteUpload.onchange = function() {
+                    const idx = Number(imgSel.value);
+                    if (isNaN(idx) || !charList[idx]) { alert("请先选择角色"); return; }
+                    const file = this.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        charList[idx].sprite = ev.target.result;
+                        document.getElementById("spritePreview").innerHTML =
+                            `<img src="${ev.target.result}" style="max-height:60px;max-width:100%;">`;
+                        saveAllData();
+                        if (currentCharIndex === idx && chatOverlay.classList.contains('show')) {
+                            chatSprite.src = ev.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                };
+                bgUpload.onchange = function() {
+                    const idx = Number(imgSel.value);
+                    if (isNaN(idx) || !charList[idx]) { alert("请先选择角色"); return; }
+                    const file = this.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        charList[idx].bg = ev.target.result;
+                        document.getElementById("bgPreview").innerHTML =
+                            `<img src="${ev.target.result}" style="max-height:60px;max-width:100%;">`;
+                        saveAllData();
+                        if (currentCharIndex === idx && chatOverlay.classList.contains('show')) {
+                            chatBg.style.backgroundImage = `url(${ev.target.result})`;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                };
+                imgSel.onchange = function() {
+                    const idx = Number(this.value);
+                    if (isNaN(idx) || !charList[idx]) { document.getElementById("spritePreview").innerHTML = "无";
+                        document.getElementById("bgPreview").innerHTML = "无"; return; }
+                    const c = charList[idx];
+                    document.getElementById("spritePreview").innerHTML = c.sprite ?
+                        `<img src="${c.sprite}" style="max-height:60px;max-width:100%;">` : "无";
+                    document.getElementById("bgPreview").innerHTML = c.bg ?
+                        `<img src="${c.bg}" style="max-height:60px;max-width:100%;">` : "无";
+                };
+            }
+
+            // ----- 分组对话导入 -----
+            function setupGroupDialogueImport() {
+                groupDialogueFile.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        try {
+                            const arr = JSON.parse(ev.target.result);
+                            if (!Array.isArray(arr)) throw new Error();
+                            arr.forEach(item => {
+                                const g = bondGroups.find(g => g.name === item.groupName);
+                                if (g) g.dialogues = item.dialogues || [];
+                            });
+                            saveAllData();
+                            renderBondGroupList();
+                            alert("导入成功");
+                        } catch (err) { alert("格式错误"); }
+                        groupDialogueFile.value = "";
+                    };
+                    reader.readAsText(file);
+                };
+            }
+
+            // ----- 文游事件导入 -----
+            function setupStoryImport() {
+                storyFile.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        try {
+                            const data = JSON.parse(ev.target.result);
+                            if (!Array.isArray(data)) throw new Error("需要数组");
+                            storyEvents = data;
+                            visitedEvents = {};
+                            chatSessions = {};
+                            saveAllData();
+                            document.getElementById("storyStatus").innerText = `已导入 ${storyEvents.length} 个事件`;
+                            alert(`成功导入 ${storyEvents.length} 个事件`);
+                            if (chatOverlay.classList.contains('show')) {
+                                closeChat();
+                            }
+                        } catch (err) {
+                            alert("解析失败：" + err.message);
+                        }
+                        storyFile.value = "";
+                    };
+                    reader.readAsText(file);
+                };
+            }
+
+            // ----- 初始化 -----
+            function init() {
+                try {
+                    loadAllData();
+
+                    if (!charList.length) {
+                        charList = [
+                            { name: "哈利", status: "闲逛", quotes: ["又是麻烦的一天。", "希望不要碰到斯内普。"], x: 300, y: 250,
+                                targetX: 320, targetY: 280, sprite: "", bg: "" },
+                            { name: "罗恩", status: "闲逛", quotes: ["肚子又饿了。", "希望晚餐有布丁。"], x: 310, y: 260,
+                                targetX: 340, targetY: 290, sprite: "", bg: "" },
+                            { name: "赫敏", status: "闲逛", quotes: ["作业还没有写完。", "你们又在偷懒。"], x: 305, y: 240,
+                                targetX: 360, targetY: 270, sprite: "", bg: "" },
+                            { name: "斯内普", status: "巡逻", quotes: ["格兰芬多又扣分了。", "魔药课不许走神。"], x: 385, y: 365,
+                                targetX: 385, targetY: 365, sprite: "", bg: "" },
+                            { name: "邓布利多", status: "休息中", quotes: ["勇敢一点。", "真相值得被看见。"], x: 230, y: 165,
+                                targetX: 230, targetY: 165, sprite: "", bg: "" }
+                        ];
+                        bondGroups = [{ name: "三人组", members: [0, 1, 2], dialogues: [] }];
+                        saveAllData();
+                    }
+
+                    const llmSaved = safeGet(API_CFG_STORAGE, null);
+                    if (llmSaved) llmConfig = llmSaved;
+
+                    // 绑定事件
+                    document.getElementById("spellBtn").onclick = handleSpellInput;
+                    document.getElementById("spellInput").addEventListener("keydown", function(e) {
+                        if (e.key === "Enter") { e.preventDefault();
+                            handleSpellInput(); }
+                    });
+                    document.getElementById("voiceBtn").onclick = toggleVoiceSpell;
+                    document.getElementById("finishBtn").onclick = finishUse;
+                    document.getElementById("openSettingBtn").onclick = openSetting;
+                    document.getElementById("setClose").onclick = closeSetting;
+                    document.getElementById("cancelBtn").onclick = closeSetting;
+                    document.getElementById("saveExitBtn").onclick = saveAndExitSetting;
+                    document.getElementById("addCharBtn").onclick = addCharacter;
+                    document.getElementById("addGroupBtn").onclick = addBondGroup;
+                    document.getElementById("trackTargetSelect").onchange = changeTrackTarget;
+                    document.getElementById("charQuoteSelect").onchange = loadCharQuotes;
+                    document.getElementById("saveStatusBtn").onclick = saveCharStatus;
+                    document.getElementById("chatCloseBtn").onclick = closeChat;
+                    document.getElementById("chatSendBtn").onclick = sendChatMsg;
+                    document.getElementById("chatInput").addEventListener("keydown", function(e) {
+                        if (e.key === "Enter") { e.preventDefault();
+                            sendChatMsg(); }
+                    });
+                    document.getElementById("exportBtn").onclick = exportCharCard;
+                    document.getElementById("importBtn").onclick = triggerImport;
+                    importCharFile.onchange = handleImportFile;
+                    document.getElementById("exportAllSave").onclick = exportFullSave;
+                    document.getElementById("importAllSave").onclick = function() { fullSaveFile.click(); };
+                    fullSaveFile.onchange = importFullSaveFile;
+                    document.getElementById("collectBtn").onclick = collectCurrentMsg;
+
+                    document.querySelectorAll('input[name="chatMode"]').forEach(r => {
+                        r.onchange = function() {
+                            document.getElementById("apiKeyWrap").style.display = this.value === "api" ? "block" :
+                            "none";
+                        };
+                    });
+
+                    setupImageUpload();
+                    setupGroupDialogueImport();
+                    setupStoryImport();
+
+                    refreshCharSelects();
+                    refreshTrackSelect();
+                    renderCharManageList();
+                    renderBondGroupList();
+                    rebuildPersonDom();
+
+                    document.getElementById("storyStatus").innerText = storyEvents.length ? `已导入 ${storyEvents.length} 个事件` :
+                        "未导入";
+
+                    resizeMapScale();
+                    window.addEventListener("resize", debouncedResize);
+                    window.addEventListener("orientationchange", function() { setTimeout(debouncedResize, 300); });
+
+                    if (mapContent.classList.contains("active")) startWander();
+
+                    console.log("✅ 活点地图 + 文游引擎 + 聊天气泡启动成功");
+                } catch (e) {
+                    console.error("初始化错误:", e);
+                    alert("加载失败，请刷新页面");
+                }
+            }
+
+            // 启动
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", init);
+            } else {
+                init();
+            }
+
+            // 暴露全局函数
+            window.editCharName = window.editCharName;
+            window.delChar = window.delChar;
+            window.saveGroupMember = window.saveGroupMember;
+            window.deleteBondGroup = window.deleteBondGroup;
+
+            window.addEventListener('beforeunload', function() {
+                if (currentCharIndex !== -1 && chatOverlay.classList.contains('show')) {
+                    saveCurrentSession();
+                }
+                saveAllData();
+            });
+
+        })();
+    </script>
 </body>
 </html>
